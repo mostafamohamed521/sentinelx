@@ -1,0 +1,6 @@
+
+[crewai]
+crewai==0.11.2
+
+[dev]
+pytest>=8.0
