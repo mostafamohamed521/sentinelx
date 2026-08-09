@@ -22,9 +22,7 @@ Once "Register" was established as meaning *"create a new Organization"* (see [`
 
 ## Decision
 
-**Team members never register directly.** They can only join an Organization through an **Invitation** issued by the Owner (invitation rights are not delegated to `Member` — see the role reconciliation note in [`06-authorization.md`](../06-authorization.md#7-what-are-our-roles)).
-
-> **Schema note:** the `invitations` table this ADR requires is not part of the 7-entity, frozen `backend/docs/database/` schema. It is specified as an additive extension in [`ADR-005-invitations-table.md`](./ADR-005-invitations-table.md) — read it alongside this ADR before implementing.
+**Team members never register directly.** They can only join an Organization through an **Invitation** issued by an existing Owner (or, depending on policy, an Admin).
 
 ```text
 Owner

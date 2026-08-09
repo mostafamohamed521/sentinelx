@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\Verdict;
-use App\Models\Observation;
-use App\Models\Prediction;
+use App\Modules\Analysis\Domain\Verdict;
+use App\Modules\Analysis\Infrastructure\Persistence\Prediction;
+use App\Modules\Observation\Infrastructure\Persistence\Observation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PredictionFactory extends Factory
 {
+    protected $model = Prediction::class;
+
     /**
      * Define the model's default state.
      *

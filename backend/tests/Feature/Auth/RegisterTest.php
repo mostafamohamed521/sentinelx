@@ -1,17 +1,17 @@
 <?php
 
-use App\Enums\UserRole;
-use App\Models\Company;
-use App\Models\User;
+use App\Modules\Authentication\Identity\Domain\UserRole;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
+use App\Modules\Organization\Infrastructure\Persistence\Organization;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
 
 // === HAPPY PATH ===
 
-test('registering creates a company and an owner user, and sends a verification email', function () {
+test('registering creates an organization and an owner user, and sends a verification email', function () {
     Notification::fake();
 
-    $response = $this->postJson('/api/auth/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'organization_name' => 'Acme Security',
         'full_name' => 'Ahmed Owner',
         'email' => 'ahmed@acme.example',
@@ -27,15 +27,15 @@ test('registering creates a company and an owner user, and sends a verification 
         ->and($user->role)->toBe(UserRole::Owner)
         ->and($user->email_verified_at)->toBeNull();
 
-    $company = Company::where('name', 'Acme Security')->first();
-    expect($company)->not->toBeNull()
-        ->and($user->company_id)->toBe($company->id);
+    $organization = Organization::where('name', 'Acme Security')->first();
+    expect($organization)->not->toBeNull()
+        ->and($user->organization_id)->toBe($organization->id);
 
     Notification::assertSentTo($user, VerifyEmail::class);
 });
 
 test('registration response never exposes password_hash', function () {
-    $response = $this->postJson('/api/auth/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'organization_name' => 'Acme Security',
         'full_name' => 'Ahmed Owner',
         'email' => 'ahmed@acme.example',
@@ -51,7 +51,7 @@ test('registration response never exposes password_hash', function () {
 test('registration fails when the email is already taken', function () {
     User::factory()->create(['email' => 'taken@acme.example']);
 
-    $response = $this->postJson('/api/auth/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'organization_name' => 'Acme Security',
         'full_name' => 'Ahmed Owner',
         'email' => 'taken@acme.example',
@@ -59,11 +59,13 @@ test('registration fails when the email is already taken', function () {
         'password_confirmation' => 'password123',
     ]);
 
-    $response->assertUnprocessable()->assertJsonValidationErrors('email');
+    $response->assertUnprocessable()
+        ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+        ->assertJsonStructure(['error' => ['details' => ['email']]]);
 });
 
 test('registration fails when the password confirmation does not match', function () {
-    $response = $this->postJson('/api/auth/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'organization_name' => 'Acme Security',
         'full_name' => 'Ahmed Owner',
         'email' => 'ahmed@acme.example',
@@ -71,11 +73,13 @@ test('registration fails when the password confirmation does not match', functio
         'password_confirmation' => 'not-the-same',
     ]);
 
-    $response->assertUnprocessable()->assertJsonValidationErrors('password');
+    $response->assertUnprocessable()
+        ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+        ->assertJsonStructure(['error' => ['details' => ['password']]]);
 });
 
 test('two organizations get distinct slugs even with the same name', function () {
-    $this->postJson('/api/auth/register', [
+    $this->postJson('/api/v1/auth/register', [
         'organization_name' => 'Acme Security',
         'full_name' => 'Ahmed Owner',
         'email' => 'ahmed@acme.example',
@@ -83,7 +87,7 @@ test('two organizations get distinct slugs even with the same name', function ()
         'password_confirmation' => 'password123',
     ])->assertCreated();
 
-    $this->postJson('/api/auth/register', [
+    $this->postJson('/api/v1/auth/register', [
         'organization_name' => 'Acme Security',
         'full_name' => 'Mohamed Owner',
         'email' => 'mohamed@acme2.example',
@@ -91,7 +95,7 @@ test('two organizations get distinct slugs even with the same name', function ()
         'password_confirmation' => 'password123',
     ])->assertCreated();
 
-    $slugs = Company::where('name', 'Acme Security')->pluck('slug');
+    $slugs = Organization::where('name', 'Acme Security')->pluck('slug');
 
     expect($slugs)->toHaveCount(2)
         ->and($slugs->unique())->toHaveCount(2);

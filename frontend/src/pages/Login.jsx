@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import GlassCard from "../components/ui/GlassCard.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { ArrowRight, Mail, Lock, AlertCircle } from "lucide-react";
+import { MOCK_MODE } from "../lib/apiClient.js";
+import { ArrowRight, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,9 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/dashboard";
+  // Signup.jsx redirects here after registration (no token is issued until
+  // the account's email is verified), carrying a one-time success message.
+  const justRegisteredMessage = location.state?.justRegisteredMessage;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -32,6 +36,13 @@ export default function Login() {
     <GlassCard className="p-8">
       <h1 className="text-xl font-semibold text-white">Welcome back</h1>
       <p className="mt-1.5 text-sm text-white/40">Sign in to your SentinelX workspace.</p>
+
+      {justRegisteredMessage && (
+        <div className="mt-5 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-3.5 py-2.5 text-xs text-emerald-300">
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+          {justRegisteredMessage}
+        </div>
+      )}
 
       {formError && (
         <div className="mt-5 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-3.5 py-2.5 text-xs text-rose-300">
@@ -93,9 +104,11 @@ export default function Login() {
         </Link>
       </p>
 
-      <p className="mt-3 text-center text-[11px] text-white/20">
-        Demo: any email + a password of 4+ characters will sign you in.
-      </p>
+      {MOCK_MODE && (
+        <p className="mt-3 text-center text-[11px] text-white/20">
+          Demo: any email + a password of 4+ characters will sign you in.
+        </p>
+      )}
     </GlassCard>
   );
 }

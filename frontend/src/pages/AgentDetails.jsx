@@ -5,32 +5,142 @@ import GlassCard from "../components/ui/GlassCard.jsx";
 import Badge from "../components/ui/Badge.jsx";
 import Reveal from "../components/ui/Reveal.jsx";
 import { PageLoader, PageError } from "../components/ui/PageState.jsx";
-import { getAgent, archiveAgent, reactivateAgent, rotateApiKey, listAgentObservations } from "../lib/api/agents.js";
-import { listAlerts } from "../lib/api/alerts.js";
-import { Bot, ArrowRight, KeyRound, Archive, RotateCcw, Copy, CheckCircle2 } from "lucide-react";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { getAgent, updateAgent, archiveAgent, rotateApiKey, listAgentObservations } from "../lib/api/agents.js";
+import { Bot, KeyRound, Archive, Copy, CheckCircle2, Pencil, X, AlertCircle } from "lucide-react";
+
+function EditAgentModal({ agent, onClose, onSaved }) {
+  const [name, setName] = useState(agent.name || "");
+  const [framework, setFramework] = useState(agent.framework || "");
+  const [frameworkVersion, setFrameworkVersion] = useState(agent.framework_version || "");
+  const [description, setDescription] = useState(agent.description || "");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      // PATCH /agents/{id} accepts partial updates but requires at least
+      // one field — since this form always shows every field, send them all.
+      const updated = await updateAgent(agent.id, {
+        name,
+        framework,
+        framework_version: frameworkVersion || null,
+        description: description || null,
+      });
+      onSaved(updated);
+    } catch (err) {
+      // 409 CONFLICT on a name collision, 422 on validation — both surface
+      // here as err.message.
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+      <GlassCard className="w-full max-w-md p-6">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-white">Edit agent</h2>
+          <button onClick={onClose} className="text-white/40 hover:text-white">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-3.5 py-2.5 text-xs text-rose-300">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">Name</label>
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">Framework</label>
+            <input
+              required
+              value={framework}
+              onChange={(e) => setFramework(e.target.value)}
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">Framework version</label>
+            <input
+              value={frameworkVersion}
+              onChange={(e) => setFrameworkVersion(e.target.value)}
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="w-full resize-none rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-lg border border-white/[0.1] py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.05]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 rounded-lg bg-white py-2.5 text-sm font-semibold text-[#07080f] transition hover:bg-white/90 disabled:opacity-60"
+            >
+              {submitting ? "Saving..." : "Save changes"}
+            </button>
+          </div>
+        </form>
+      </GlassCard>
+    </div>
+  );
+}
 
 export default function AgentDetails() {
   const { agentId } = useParams();
+  const { user } = useAuth();
   const [agent, setAgent] = useState(null);
   const [observations, setObservations] = useState([]);
-  const [agentAlerts, setAgentAlerts] = useState([]);
   const [error, setError] = useState(null);
+  const [actionError, setActionError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [newKey, setNewKey] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+
+  // Archive, rotate-api-key, and update are all Owner-only server-side
+  // (403 for anyone else) — gated here to avoid inevitable failed requests.
+  const isOwner = user?.role === "OWNER";
 
   async function load() {
     setError(null);
     setAgent(null);
     try {
-      const [agentRes, obsRes, alertsRes] = await Promise.all([
+      const [agentRes, obsRes] = await Promise.all([
         getAgent(agentId),
         listAgentObservations(agentId),
-        listAlerts({ agent_id: agentId }),
       ]);
       setAgent(agentRes);
       setObservations(obsRes.data);
-      setAgentAlerts(alertsRes.data);
     } catch (e) {
       setError(e.message);
     }
@@ -39,14 +149,21 @@ export default function AgentDetails() {
   useEffect(() => {
     load();
     setNewKey(null);
+    setActionError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentId]);
 
-  async function handleArchiveToggle() {
+  // One-way — Agent archival has no reverse transition on the real Backend
+  // (AgentPolicy), so there is nothing to toggle back.
+  async function handleArchive() {
     setBusy(true);
+    setActionError(null);
     try {
-      const updated = agent.status === "archived" ? await reactivateAgent(agentId) : await archiveAgent(agentId);
+      const updated = await archiveAgent(agentId);
       setAgent((prev) => ({ ...prev, ...updated }));
+    } catch (e) {
+      // e.g. 409 CONFLICT if it was already archived by someone else.
+      setActionError(e.message);
     } finally {
       setBusy(false);
     }
@@ -54,10 +171,15 @@ export default function AgentDetails() {
 
   async function handleRotateKey() {
     setBusy(true);
+    setActionError(null);
     try {
       const res = await rotateApiKey(agentId);
-      setNewKey(res.api_key);
-      setAgent((prev) => ({ ...prev, api_key: res.api_key }));
+      // raw_key is shown exactly once by the Backend and is never
+      // retrievable again — it is intentionally not merged onto the Agent
+      // resource itself (AgentResource never carries a key field).
+      setNewKey(res.raw_key);
+    } catch (e) {
+      setActionError(e.message);
     } finally {
       setBusy(false);
     }
@@ -82,26 +204,46 @@ export default function AgentDetails() {
         actions={
           <>
             <button
+              onClick={() => setShowEdit(true)}
+              disabled={!isOwner}
+              title={isOwner ? undefined : "Only workspace Owners can edit agents"}
+              className="flex items-center gap-1.5 rounded-lg border border-white/[0.1] px-3.5 py-2 text-xs font-medium text-white/70 transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Edit
+            </button>
+            <button
               onClick={handleRotateKey}
-              disabled={busy}
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.1] px-3.5 py-2 text-xs font-medium text-white/70 transition hover:bg-white/[0.05] disabled:opacity-50"
+              disabled={busy || !isOwner || agent.status === "ARCHIVED"}
+              title={isOwner ? undefined : "Only workspace Owners can rotate API keys"}
+              className="flex items-center gap-1.5 rounded-lg border border-white/[0.1] px-3.5 py-2 text-xs font-medium text-white/70 transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <KeyRound className="h-3.5 w-3.5" /> Rotate API Key
             </button>
-            <button
-              onClick={handleArchiveToggle}
-              disabled={busy}
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.1] px-3.5 py-2 text-xs font-medium text-white/70 transition hover:bg-white/[0.05] disabled:opacity-50"
-            >
-              {agent.status === "archived" ? <RotateCcw className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
-              {agent.status === "archived" ? "Reactivate" : "Archive"}
-            </button>
+            {/* Archival is one-way — an already-Archived Agent gets no
+                action button to leave that state, matching the real
+                Backend's actual, deliberate state machine. */}
+            {agent.status !== "ARCHIVED" && (
+              <button
+                onClick={handleArchive}
+                disabled={busy || !isOwner}
+                title={isOwner ? undefined : "Only workspace Owners can archive agents"}
+                className="flex items-center gap-1.5 rounded-lg border border-white/[0.1] px-3.5 py-2 text-xs font-medium text-white/70 transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Archive className="h-3.5 w-3.5" /> Archive
+              </button>
+            )}
           </>
         }
       />
 
+      {actionError && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-4 py-3 text-xs text-rose-300">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {actionError}
+        </div>
+      )}
+
       {newKey && (
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-4 py-3 text-xs">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-4 py-3 text-xs">
           <div className="flex items-center gap-2 text-emerald-300">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
             New API key generated — copy it now, it won't be shown again: <code className="text-white/80">{newKey}</code>
@@ -119,62 +261,65 @@ export default function AgentDetails() {
         </GlassCard>
         <GlassCard className="p-4">
           <div className="text-[10px] text-white/35">Version</div>
-          <div className="mt-1 text-sm font-semibold text-white">{agent.version}</div>
+          <div className="mt-1 text-sm font-semibold text-white">{agent.framework_version || "—"}</div>
         </GlassCard>
         <GlassCard className="p-4">
           <div className="text-[10px] text-white/35">Status</div>
-          <div className="mt-1"><Badge tone={agent.status}>{agent.status}</Badge></div>
+          {/* Badge's style tokens are lowercase; the Backend's real status
+              values are uppercase — normalized here at the display call site. */}
+          <div className="mt-1"><Badge tone={agent.status?.toLowerCase()}>{agent.status?.toLowerCase()}</Badge></div>
         </GlassCard>
         <GlassCard className="p-4">
-          <div className="text-[10px] text-white/35">Risk Level</div>
-          <div className="mt-1"><Badge tone={agent.risk_level}>{agent.risk_level}</Badge></div>
+          <div className="text-[10px] text-white/35">Last Seen</div>
+          <div className="mt-1 text-sm font-semibold text-white">
+            {agent.last_seen_at ? new Date(agent.last_seen_at).toLocaleString() : "Never"}
+          </div>
         </GlassCard>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Reveal>
-          <GlassCard className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm font-medium text-white">Recent Observations</span>
-              <Bot className="h-4 w-4 text-white/30" />
-            </div>
-            <div className="space-y-2.5">
-              {observations.length === 0 && <p className="text-sm text-white/30">No observations yet.</p>}
-              {observations.map((o) => (
-                <Link
-                  key={o.id}
-                  to={`/observations/${o.id}`}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-sm transition hover:bg-white/[0.05]"
+      <Reveal>
+        <GlassCard className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-white">Recent Observations</span>
+            <Bot className="h-4 w-4 text-white/30" />
+          </div>
+          <div className="space-y-2.5">
+            {observations.length === 0 && <p className="text-sm text-white/30">No observations yet.</p>}
+            {observations.map((o) => (
+              <Link
+                key={o.id}
+                to={`/observations/${o.id}`}
+                className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-sm transition hover:bg-white/[0.05]"
+              >
+                <span className="text-white/60">{new Date(o.received_at || o.created_at).toLocaleString()}</span>
+                {/* ObservationSummaryResource carries analysis_status only —
+                    no verdict at the list level; the verdict only appears
+                    once analysis has completed, on the detail endpoint. */}
+                <Badge
+                  tone={
+                    o.analysis_status === "COMPLETED" ? "active"
+                      : o.analysis_status === "FAILED" ? "high"
+                      : "acknowledged"
+                  }
                 >
-                  <span className="text-white/60">{new Date(o.created_at).toLocaleString()}</span>
-                  <Badge tone={o.verdict === "Benign" ? "low" : o.verdict === "Suspicious" ? "medium" : "high"}>{o.verdict}</Badge>
-                </Link>
-              ))}
-            </div>
-          </GlassCard>
-        </Reveal>
+                  {o.analysis_status?.toLowerCase()}
+                </Badge>
+              </Link>
+            ))}
+          </div>
+        </GlassCard>
+      </Reveal>
 
-        <Reveal delay={100}>
-          <GlassCard className="p-6">
-            <div className="mb-4 text-sm font-medium text-white">Related Alerts</div>
-            <div className="space-y-2.5">
-              {agentAlerts.length === 0 && <p className="text-sm text-white/30">No alerts for this agent.</p>}
-              {agentAlerts.map((a) => (
-                <Link
-                  key={a.id}
-                  to={`/alerts/${a.id}`}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-sm transition hover:bg-white/[0.05]"
-                >
-                  <span className="flex items-center gap-2 text-white/60">
-                    {a.reasons[0]} <ArrowRight className="h-3 w-3 text-white/20" />
-                  </span>
-                  <Badge tone={a.severity}>{a.severity}</Badge>
-                </Link>
-              ))}
-            </div>
-          </GlassCard>
-        </Reveal>
-      </div>
+      {showEdit && (
+        <EditAgentModal
+          agent={agent}
+          onClose={() => setShowEdit(false)}
+          onSaved={(updated) => {
+            setAgent((prev) => ({ ...prev, ...updated }));
+            setShowEdit(false);
+          }}
+        />
+      )}
     </div>
   );
 }

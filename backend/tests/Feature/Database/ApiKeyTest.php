@@ -1,8 +1,8 @@
 <?php
 
-use App\Enums\ApiKeyStatus;
-use App\Models\Agent;
-use App\Models\ApiKey;
+use App\Modules\Agent\Infrastructure\Persistence\Agent;
+use App\Modules\Authentication\ApiKey\Domain\ApiKeyStatus;
+use App\Modules\Authentication\ApiKey\Infrastructure\Persistence\ApiKey;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\QueryException;
 

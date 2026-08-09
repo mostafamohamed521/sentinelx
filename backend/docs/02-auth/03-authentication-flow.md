@@ -40,9 +40,9 @@ Walking through the story: Ahmed opens the site for the first time and registers
 
 **No.** He must first **Verify Email**, because SentinelX is a B2B platform and we do not want fake or unverified emails on the platform.
 
-> **Resolved via [`adr/ADR-006-email-verified-at-column.md`](./adr/ADR-006-email-verified-at-column.md):** `users.status` (`ACTIVE`/`DISABLED`) remains exactly as reconciled — `DISABLED` still means only "administratively deactivated," never "unverified." Verification state is tracked separately, on an additive, nullable `users.email_verified_at` timestamp: `NULL` until verified, set once to the verification time when the signed link is followed. A user is `ACTIVE` immediately at registration, but Login is rejected while `email_verified_at IS NULL`.
+> **Resolved via [`adr/ADR-005-email-verified-at-column.md`](./adr/ADR-005-email-verified-at-column.md):** `users.status` (`ACTIVE`/`DISABLED`) stays exactly two-valued — `DISABLED` means only "administratively deactivated," never "unverified." Verification state lives on a separate, additive, nullable `users.email_verified_at` timestamp: `NULL` until verified, set once to the verification time when the signed link is followed. A user is `ACTIVE` immediately at registration, but Login is rejected while `email_verified_at IS NULL`.
 >
-> The mechanism for verifying the link's authenticity (a signed, expiring URL carrying the User's ID, checked by signature and expiry) is exactly as originally documented; `email_verified_at` is where its result is persisted.
+> The mechanism for verifying the link's authenticity (a signed, expiring URL carrying the User's ID, checked by signature and expiry) is exactly as documented below; `email_verified_at` is only where its result is persisted.
 
 ### The Journey
 

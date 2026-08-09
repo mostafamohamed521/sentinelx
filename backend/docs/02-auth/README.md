@@ -57,9 +57,7 @@ There is **no universal authentication mechanism**. A Human uses a password and 
 ## 4. Folder Architecture
 
 ```text
-docs/
-└── backend/
-    └── authentication/
+backend/docs/02-auth/
         │
         ├── README.md                              ← you are here
         │
@@ -77,7 +75,8 @@ docs/
         │   ├── ADR-001-role-storage.md
         │   ├── ADR-002-api-key-design.md
         │   ├── ADR-003-jwt-claims.md
-        │   └── ADR-004-invitation-based-onboarding.md
+        │   ├── ADR-004-invitation-based-onboarding.md
+        │   └── ADR-005-email-verified-at-column.md
         │
         ├── contracts/                               ← exact formats, for implementation
         │   ├── jwt-claims.md
@@ -110,7 +109,7 @@ Every numbered file (`01-...` through `09-...`) is a **direct, faithful translat
 | 7 | [`07-security.md`](./07-security.md) | The ten hardening principles applied across every layer |
 | 8 | [`08-identity-lifecycle.md`](./08-identity-lifecycle.md) | How an Organization and its Owner come into existence (V1). Also documents the Invitation/Team Management design for a future version (see the scope banner at the top of the file) |
 | 9 | [`09-implementation-roadmap.md`](./09-implementation-roadmap.md) | The actual build order, phase by phase, sprint by sprint |
-| — | [`adr/`](./adr) | The four pivotal architectural decisions, with full reasoning and rejected alternatives |
+| — | [`adr/`](./adr) | The five pivotal architectural decisions, with full reasoning and rejected alternatives |
 | — | [`contracts/`](./contracts) | Exact JWT claim shape, API key format, and error response shape — implementation-ready |
 | — | [`diagrams/`](./diagrams) | ERD, sequence diagrams, flow diagrams, and state diagrams |
 | — | [`glossary.md`](./glossary.md) | Every term defined once, to prevent drift and repetition |

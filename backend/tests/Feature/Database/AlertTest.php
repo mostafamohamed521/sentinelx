@@ -1,9 +1,9 @@
 <?php
 
-use App\Enums\AlertStatus;
-use App\Enums\Severity;
-use App\Models\Alert;
-use App\Models\Prediction;
+use App\Modules\Alert\Domain\AlertStatus;
+use App\Modules\Alert\Domain\Severity;
+use App\Modules\Alert\Infrastructure\Persistence\Alert;
+use App\Modules\Analysis\Infrastructure\Persistence\Prediction;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\QueryException;
 

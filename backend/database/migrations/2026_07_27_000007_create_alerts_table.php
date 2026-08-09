@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\AlertStatus;
+use App\Modules\Alert\Domain\AlertStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;

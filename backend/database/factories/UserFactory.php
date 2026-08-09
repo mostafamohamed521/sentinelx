@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Enums\UserRole;
-use App\Enums\UserStatus;
-use App\Models\Company;
-use App\Models\User;
+use App\Modules\Authentication\Identity\Domain\UserRole;
+use App\Modules\Authentication\Identity\Domain\UserStatus;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
+use App\Modules\Organization\Infrastructure\Persistence\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
  */
 class UserFactory extends Factory
 {
+    protected $model = User::class;
+
     /**
      * The current password being used by the factory.
      */
@@ -27,7 +29,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'company_id' => Company::factory(),
+            'organization_id' => Organization::factory(),
             'full_name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password_hash' => static::$password ??= Hash::make('password'),
@@ -45,6 +47,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::Owner,
+        ]);
+    }
+
+    /**
+     * Indicate that the user manages day-to-day platform operation.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Admin,
         ]);
     }
 

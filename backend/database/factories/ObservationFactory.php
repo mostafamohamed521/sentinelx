@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\AnalysisStatus;
-use App\Models\Agent;
-use App\Models\Observation;
+use App\Modules\Agent\Infrastructure\Persistence\Agent;
+use App\Modules\Observation\Domain\AnalysisStatus;
+use App\Modules\Observation\Infrastructure\Persistence\Observation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ObservationFactory extends Factory
 {
+    protected $model = Observation::class;
+
     /**
      * Define the model's default state.
      *
@@ -23,9 +25,9 @@ class ObservationFactory extends Factory
 
         return [
             'agent_id' => Agent::factory(),
-            // Denormalized to match the owning Agent's company (ADR-005) —
+            // Denormalized to match the owning Agent's organization (ADR-005) —
             // never sourced independently, even in tests.
-            'company_id' => fn (array $attributes) => Agent::find($attributes['agent_id'])->company_id,
+            'organization_id' => fn (array $attributes) => Agent::find($attributes['agent_id'])->organization_id,
             'analysis_status' => AnalysisStatus::Pending,
             'raw_ases_json' => $this->fakeAsesPayload(),
             'received_at' => $receivedAt,

@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\AgentStatus;
+use App\Modules\Agent\Domain\AgentStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained('companies')->restrictOnDelete();
+            $table->foreignUuid('organization_id')->constrained('organizations')->restrictOnDelete();
             $table->string('name');
             $table->string('framework');
             $table->string('framework_version')->nullable();
@@ -24,12 +24,12 @@ return new class extends Migration
             $table->timestamp('last_seen_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['company_id', 'name']);
+            $table->unique(['organization_id', 'name']);
         });
 
         // Composite index with an explicit DESC clause to serve
-        // `GET /api/v1/agents` (filter by company, sort by newest first).
-        DB::statement('CREATE INDEX agents_company_id_created_at_index ON agents (company_id, created_at DESC)');
+        // `GET /api/v1/agents` (filter by organization, sort by newest first).
+        DB::statement('CREATE INDEX agents_organization_id_created_at_index ON agents (organization_id, created_at DESC)');
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\ApiKeyStatus;
+use App\Modules\Authentication\ApiKey\Domain\ApiKeyStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

@@ -1,10 +1,10 @@
 <?php
 
-use App\Enums\AnalysisStatus;
-use App\Models\Agent;
-use App\Models\Observation;
+use App\Modules\Agent\Infrastructure\Persistence\Agent;
+use App\Modules\Analysis\Infrastructure\Persistence\Prediction;
+use App\Modules\Observation\Domain\AnalysisStatus;
+use App\Modules\Observation\Infrastructure\Persistence\Observation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 // === HAPPY PATH ===
 
@@ -23,22 +23,31 @@ test('an observation can be marked completed', function () {
         ->and($observation->processed_at)->not->toBeNull();
 });
 
-// === BUSINESS RULE: company_id denormalization (ADR-005) ===
+// === BUSINESS RULE: organization_id denormalization (ADR-005) ===
 
-test('company_id always matches the owning agent\'s company', function () {
+test('organization_id always matches the owning agent\'s organization', function () {
     $agent = Agent::factory()->create();
     $observation = Observation::factory()->for($agent)->create();
 
-    expect($observation->company_id)->toBe($agent->company_id);
+    expect($observation->organization_id)->toBe($agent->organization_id);
 });
 
 // === RELATIONSHIPS ===
 
-test('an observation belongs to a company and an agent, and may have one prediction', function () {
+test('an observation belongs to an organization and an agent', function () {
     $observation = Observation::factory()->create();
 
-    expect($observation->company())->toBeInstanceOf(BelongsTo::class)
-        ->and($observation->agent())->toBeInstanceOf(BelongsTo::class)
-        ->and($observation->prediction())->toBeInstanceOf(HasOne::class)
-        ->and($observation->prediction)->toBeNull();
+    expect($observation->organization())->toBeInstanceOf(BelongsTo::class)
+        ->and($observation->agent())->toBeInstanceOf(BelongsTo::class);
+});
+
+// The Observation module never depends on Analysis — see
+// 05-cross-module-boundaries.md §1. There is deliberately no
+// Observation::prediction() relation; a fresh Observation simply has no
+// matching row in `predictions`, verified from the owning (allowed)
+// direction instead — Prediction belongs to Observation, never the reverse.
+test('a fresh observation has no prediction', function () {
+    $observation = Observation::factory()->create();
+
+    expect(Prediction::where('observation_id', $observation->id)->exists())->toBeFalse();
 });

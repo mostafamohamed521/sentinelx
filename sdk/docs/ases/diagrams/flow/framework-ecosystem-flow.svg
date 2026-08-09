@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 446" width="1000" height="446"><rect x="0" y="0" width="1000" height="446" fill="#f1f5f9"/><text x="500.0" y="34" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#0f172a">Flow — Framework Ecosystem Strategy</text><text x="500.0" y="54" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" fill="#64748b">07-agent-framework-ecosystem.md — only the Adapter changes per framework; the Core never does</text><defs>
+<marker id="arrowD" markerWidth="12" markerHeight="12" refX="5" refY="9" orient="auto" markerUnits="strokeWidth">
+  <path d="M0,0 L10,0 L5,9 z" fill="#475569"/>
+</marker>
+</defs><g>
+  <rect x="193.0" y="93" width="180" height="56" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="190.0" y="90" width="180" height="56" rx="8" fill="#166534" stroke="#22c55e" stroke-width="2"/>
+  <text x="280.0" y="123.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">CrewAI</text>
+</g><g>
+  <rect x="413.0" y="93" width="180" height="56" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="410.0" y="90" width="180" height="56" rx="8" fill="#1e3a8a" stroke="#3b82f6" stroke-width="2"/>
+  <text x="500.0" y="123.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">LangGraph</text>
+</g><g>
+  <rect x="633.0" y="93" width="180" height="56" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="630.0" y="90" width="180" height="56" rx="8" fill="#7c2d12" stroke="#f97316" stroke-width="2"/>
+  <text x="720.0" y="123.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">OpenAI Agents SDK</text>
+</g><g>
+  <rect x="193.0" y="219" width="180" height="56" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="190.0" y="216" width="180" height="56" rx="8" fill="#166534" stroke="#22c55e" stroke-width="2"/>
+  <text x="280.0" y="249.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">CrewAI Adapter</text>
+</g><path d="M 280.0 146 L 280.0 216" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrowD)"/><g>
+  <rect x="413.0" y="219" width="180" height="56" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="410.0" y="216" width="180" height="56" rx="8" fill="#1e3a8a" stroke="#3b82f6" stroke-width="2"/>
+  <text x="500.0" y="249.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">LangGraph Adapter</text>
+</g><path d="M 500.0 146 L 500.0 216" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrowD)"/><g>
+  <rect x="633.0" y="219" width="180" height="56" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="630.0" y="216" width="180" height="56" rx="8" fill="#7c2d12" stroke="#f97316" stroke-width="2"/>
+  <text x="720.0" y="249.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">OpenAI Agents SDK Adapter</text>
+</g><path d="M 720.0 146 L 720.0 216" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrowD)"/><g>
+  <rect x="343.0" y="345" width="320" height="64" rx="8" fill="#000" opacity="0.12"/>
+  <rect x="340.0" y="342" width="320" height="64" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+  <text x="500.0" y="379.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">ASES Core (unchanged)</text>
+</g><path d="M 280.0 272 L 500.0 342" stroke="#22c55e" stroke-width="2" fill="none" marker-end="url(#arrowD)"/><path d="M 500.0 272 L 500.0 342" stroke="#3b82f6" stroke-width="2" fill="none" marker-end="url(#arrowD)"/><path d="M 720.0 272 L 500.0 342" stroke="#f97316" stroke-width="2" fill="none" marker-end="url(#arrowD)"/></svg>

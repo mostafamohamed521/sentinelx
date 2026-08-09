@@ -1,19 +1,19 @@
 <?php
 
-use App\Enums\UserRole;
-use App\Enums\UserStatus;
-use App\Models\Company;
-use App\Models\User;
+use App\Modules\Authentication\Identity\Domain\UserRole;
+use App\Modules\Authentication\Identity\Domain\UserStatus;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
+use App\Modules\Organization\Infrastructure\Persistence\Organization;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\QueryException;
 
 // === HAPPY PATH ===
 
-test('a user belongs to a company and defaults to MEMBER/ACTIVE', function () {
-    $company = Company::factory()->create();
-    $user = User::factory()->for($company)->create();
+test('a user belongs to an organization and defaults to MEMBER/ACTIVE', function () {
+    $organization = Organization::factory()->create();
+    $user = User::factory()->for($organization)->create();
 
-    expect($user->company->is($company))->toBeTrue()
+    expect($user->organization->is($organization))->toBeTrue()
         ->and($user->role)->toBe(UserRole::Member)
         ->and($user->status)->toBe(UserStatus::Active);
 });
@@ -32,22 +32,22 @@ test('authentication reads the password from password_hash', function () {
 
 // === CONSTRAINTS ===
 
-test('email is unique across the whole platform, not just per company', function () {
+test('email is unique across the whole platform, not just per organization', function () {
     User::factory()->create(['email' => 'duplicate@example.com']);
 
     expect(fn () => User::factory()->create(['email' => 'duplicate@example.com']))
         ->toThrow(QueryException::class);
 });
 
-test('a user cannot be created without a company_id', function () {
-    expect(fn () => User::factory()->create(['company_id' => null]))
+test('a user cannot be created without an organization_id', function () {
+    expect(fn () => User::factory()->create(['organization_id' => null]))
         ->toThrow(QueryException::class);
 });
 
 // === RELATIONSHIPS ===
 
-test('a user belongs to exactly one company', function () {
+test('a user belongs to exactly one organization', function () {
     $user = User::factory()->create();
 
-    expect($user->company())->toBeInstanceOf(BelongsTo::class);
+    expect($user->organization())->toBeInstanceOf(BelongsTo::class);
 });

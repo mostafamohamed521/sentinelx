@@ -10,7 +10,7 @@
 
 ## Context
 
-The JWT already carries an Identity ID and Identity Type (see [`04-jwt.md`](../04-jwt.md)). A natural next question is whether the user's `Role` (`Owner`, `Member` — see [`06-authorization.md`](../06-authorization.md#7-what-are-our-roles)) should also be embedded inside the JWT, to avoid a database lookup on every request.
+The JWT already carries an Identity ID and Identity Type (see [`04-jwt.md`](../04-jwt.md)). A natural next question is whether the user's `Role` (`Owner`, `Admin`, `Member`) should also be embedded inside the JWT, to avoid a database lookup on every request.
 
 ---
 
@@ -40,7 +40,7 @@ Allow / Deny
 ## Rationale
 
 ### The Core Problem: Role Can Change Mid-Session
-Imagine Ahmed is `Owner`. A minute later, his role changes to `Member`. If the JWT carried `role: "OWNER"`, Ahmed would continue to act with Owner-level privileges for the entire remaining lifetime of his token — a real, exploitable security gap.
+Imagine Ahmed is `Admin`. A minute later, the Owner demotes him to `Member`. If the JWT carried `role: "ADMIN"`, Ahmed would continue to act as an Admin for the entire remaining lifetime of his token — a real, exploitable security gap.
 
 ### JWT Is Stateless By Design
 The JWT's entire value proposition (see [`04-jwt.md`](../04-jwt.md)) is that it's a minimal, short-lived proof of identity — not a cache of mutable business state. Role is exactly the kind of mutable business data the JWT was explicitly designed to exclude (see [`ADR-003-jwt-claims.md`](./ADR-003-jwt-claims.md)).

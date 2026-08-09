@@ -18,7 +18,7 @@ related_diagrams:
 
 # Domain Model
 
-> **Baseline v2.0 note:** this document was updated to add the Human Identity layer (`User`), which was designed after the original v1.0 freeze in a dedicated Authentication Design series. See `docs/backend/backend-architecture/adr/ADR-002-human-identity-baseline-update.md` for the full rationale, and `docs/backend/authentication/` for the complete Authentication design.
+> **Baseline v2.0 note:** this document was updated to add the Human Identity layer (`User`), which was designed after the original v1.0 freeze in a dedicated Authentication Design series. See `docs/backend/backend-architecture/adr/ADR-002-human-identity-baseline-update.md` for the full rationale, and `backend/docs/02-auth/` for the complete Authentication design.
 
 ## Overview
 
@@ -83,9 +83,9 @@ Responsibilities:
 - Holds a Role (`Owner`, `Admin`, or `Member`) that determines what actions are authorized.
 - The first User created for an Organization is always its `Owner`.
 
-A User is distinct from an Agent: a User is a human observer who manages the platform; an Agent is the AI entity being monitored. See `docs/backend/authentication/` for the full Authentication and Authorization design.
+A User is distinct from an Agent: a User is a human observer who manages the platform; an Agent is the AI entity being monitored. See `backend/docs/02-auth/` for the full Authentication and Authorization design.
 
-**V1 scope note:** every Organization is provisioned with exactly one User (its Owner) at registration. Multi-member teams, invited via an Invitation flow, are designed but deferred to a future version — see `docs/backend/authentication/08-identity-lifecycle.md`.
+**V1 scope note:** every Organization is provisioned with exactly one User (its Owner) at registration. Multi-member teams, invited via an Invitation flow, are designed but deferred to a future version — see `backend/docs/02-auth/08-identity-lifecycle.md`.
 
 ---
 

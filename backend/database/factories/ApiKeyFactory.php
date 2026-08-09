@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\ApiKeyStatus;
-use App\Models\Agent;
-use App\Models\ApiKey;
+use App\Modules\Agent\Infrastructure\Persistence\Agent;
+use App\Modules\Authentication\ApiKey\Domain\ApiKeyStatus;
+use App\Modules\Authentication\ApiKey\Infrastructure\Persistence\ApiKey;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
  */
 class ApiKeyFactory extends Factory
 {
+    protected $model = ApiKey::class;
+
     /**
      * Define the model's default state.
      *

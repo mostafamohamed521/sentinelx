@@ -4,7 +4,7 @@ import GlassCard from "../components/ui/GlassCard.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import {
   ArrowRight, ArrowLeft, Building2, User, Mail, Lock, AlertCircle,
-  Check, Zap, Building, Rocket,
+  Check, Zap, Building, Rocket, CheckCircle2,
 } from "lucide-react";
 
 const STEPS = ["Account", "Security", "Plan"];
@@ -44,6 +44,8 @@ export default function Signup() {
   const [plan, setPlan] = useState("free_trial");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
+  const [registered, setRegistered] = useState(false);
+  const [registeredMessage, setRegisteredMessage] = useState(null);
 
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -96,17 +98,44 @@ export default function Signup() {
     if (!validateStep(step)) return;
     setSubmitting(true);
     const result = await signup({
-      company_name: companyName,
-      admin_name: adminName,
-      admin_email: email,
+      organization_name: companyName,
+      full_name: adminName,
+      email,
       password,
+      password_confirmation: confirmPassword,
     });
     setSubmitting(false);
     if (result.ok) {
-      navigate("/dashboard", { replace: true });
+      // Registration never issues a token — the account needs its email
+      // verified before it can sign in (LoginUserAction rejects
+      // unverified users), so there is no session to land in /dashboard
+      // with yet.
+      setRegisteredMessage(result.message || "Check your email to verify your account.");
+      setRegistered(true);
     } else {
       setFormError(result.message || "Something went wrong");
     }
+  }
+
+  if (registered) {
+    return (
+      <GlassCard className="p-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
+          <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+        </div>
+        <h1 className="text-xl font-semibold text-white">Check your inbox</h1>
+        <p className="mt-2 text-sm text-white/40">{registeredMessage}</p>
+        <p className="mt-1 text-sm text-white/40">
+          Once verified, sign in with <span className="text-white/70">{email}</span> to get started.
+        </p>
+        <button
+          onClick={() => navigate("/login", { replace: true, state: { justRegisteredMessage: registeredMessage } })}
+          className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
+          Go to sign in <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      </GlassCard>
+    );
   }
 
   return (

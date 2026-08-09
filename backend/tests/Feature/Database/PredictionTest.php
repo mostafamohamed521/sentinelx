@@ -1,8 +1,8 @@
 <?php
 
-use App\Enums\Verdict;
-use App\Models\Observation;
-use App\Models\Prediction;
+use App\Modules\Analysis\Domain\Verdict;
+use App\Modules\Analysis\Infrastructure\Persistence\Prediction;
+use App\Modules\Observation\Infrastructure\Persistence\Observation;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;

@@ -122,17 +122,17 @@ For the current project:
 
 ```text
 Owner
+Admin
 Member
 ```
 
 | Role | Meaning |
 |------|---------|
-| **Owner** | The organization's founder/owner. Holds sovereign-level privileges (invite/remove users, change roles, delete the organization) **and** day-to-day platform operation (create Agents, rotate API Keys, view Alerts) |
-| **Member** | Views results and works with them, without administrative privileges |
+| **Owner** | The organization's founder/owner |
+| **Admin** | Manages the platform's day-to-day operation |
+| **Member** | Views results and works with them |
 
 If more roles are needed later, they can be added — but not now.
-
-> **Reconciliation note (aligned with `backend/docs/database/`):** the database's `UserRole` enum is a deliberately minimal two-value type — `OWNER`/`MEMBER` only (see [`02-schema/enums.md`](../01-database/02-schema/enums.md)), explicitly excluding a third `ADMIN` value "to avoid over-engineering before building a full RBAC system later." An earlier draft of this session proposed an intermediate `Admin` role for day-to-day operation distinct from Owner's sovereign privileges. That tier is folded into `Owner` here: nothing an `Admin` could do is lost, since `Owner` could always do it too — it simply means every day-to-day permission listed in [§5](#5-does-an-agent-need-authorization) is available to `Owner` as well as being exclusively available to `Owner`, since `Member` was never granted it. If a genuine need for a distinct, lesser-privileged operational tier emerges later, it is a new business requirement for a V2 RBAC expansion — not a V1 change.
 
 ---
 
@@ -140,7 +140,7 @@ If more roles are needed later, they can be added — but not now.
 
 **No** — because Role can change.
 
-Imagine Ahmed was `Owner`, and a minute later his role changes to `Member`. If the JWT carried the Role, he would remain `Owner` until the token expires — a real security risk.
+Imagine Ahmed was `Admin`, and a minute later becomes `Member`. If the JWT carried the Role, he would remain `Admin` until the token expires — a real security risk.
 
 So: the JWT carries only the `Identity ID`. Afterward, the system fetches the Role from the database on every check. See [`adr/ADR-001-role-storage.md`](./adr/ADR-001-role-storage.md) for the full reasoning.
 

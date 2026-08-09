@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Enums\AlertStatus;
-use App\Enums\Severity;
-use App\Models\Alert;
-use App\Models\Prediction;
+use App\Modules\Alert\Domain\AlertStatus;
+use App\Modules\Alert\Domain\Severity;
+use App\Modules\Alert\Infrastructure\Persistence\Alert;
+use App\Modules\Analysis\Infrastructure\Persistence\Prediction;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class AlertFactory extends Factory
 {
+    protected $model = Alert::class;
+
     /**
      * Define the model's default state.
      *
@@ -25,7 +28,9 @@ class AlertFactory extends Factory
             'severity' => fake()->randomElement(Severity::cases()),
             'status' => AlertStatus::Open,
             'acknowledged_at' => null,
+            'acknowledged_by' => null,
             'resolved_at' => null,
+            'resolved_by' => null,
         ];
     }
 
@@ -37,6 +42,7 @@ class AlertFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => AlertStatus::Acknowledged,
             'acknowledged_at' => now(),
+            'acknowledged_by' => User::factory(),
         ]);
     }
 
@@ -48,7 +54,9 @@ class AlertFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => AlertStatus::Resolved,
             'acknowledged_at' => now()->subHour(),
+            'acknowledged_by' => User::factory(),
             'resolved_at' => now(),
+            'resolved_by' => User::factory(),
         ]);
     }
 }

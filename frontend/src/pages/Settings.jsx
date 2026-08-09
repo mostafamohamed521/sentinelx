@@ -5,16 +5,17 @@ import Reveal from "../components/ui/Reveal.jsx";
 import Badge from "../components/ui/Badge.jsx";
 import SaveButton from "../components/ui/SaveButton.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { companyInfo } from "../lib/mockDb.js";
+import { getOrganization, updateOrganization } from "../lib/api/organization.js";
 import {
   listMembers, listInvitations, inviteMember, resendInvitation, cancelInvitation, removeMember, updateMemberRole,
 } from "../lib/api/team.js";
 import {
-  Settings as SettingsIcon, Bell, ShieldAlert, Building2, Users,
-  Mail, Trash2, UserPlus, AlertCircle, Clock, RotateCw, XCircle,
+  Settings as SettingsIcon, Bell, ShieldAlert, Building2, Users, User, Lock,
+  Mail, Trash2, UserPlus, AlertCircle, Clock, RotateCw, XCircle, CheckCircle2,
 } from "lucide-react";
 
 const TABS = [
+  { id: "profile", label: "Profile", icon: User },
   { id: "workspace", label: "Workspace", icon: Building2 },
   { id: "alerts", label: "Alert Policy", icon: ShieldAlert },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -33,11 +34,14 @@ function useSaveStatus() {
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState(null);
 
-  async function save() {
+  // Panels that are wired to a real endpoint pass their own async function
+  // (e.g. Profile/Workspace); panels with no backing endpoint yet
+  // (Alert Policy, Notifications) fall back to the simulated save.
+  async function save(action) {
     setStatus("saving");
     setErrorMessage(null);
     try {
-      await fakeSave();
+      await (action ? action() : fakeSave());
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 2000);
     } catch (e) {
@@ -49,10 +53,147 @@ function useSaveStatus() {
   return { status, errorMessage, save };
 }
 
+function ProfilePanel() {
+  const { user, updateProfile, changePassword } = useAuth();
+  const [fullName, setFullName] = useState(user?.full_name || "");
+  const { status: nameStatus, errorMessage: nameError, save: saveNameRaw } = useSaveStatus();
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwSubmitting, setPwSubmitting] = useState(false);
+  const [pwError, setPwError] = useState(null);
+  const [pwSuccess, setPwSuccess] = useState(null);
+
+  async function saveName() {
+    // PATCH /v1/me only accepts full_name — email and role are never
+    // editable through this endpoint.
+    const result = await updateProfile(fullName);
+    if (!result.ok) throw new Error(result.message);
+  }
+
+  async function handlePasswordSubmit(e) {
+    e.preventDefault();
+    setPwError(null);
+    setPwSuccess(null);
+    if (newPassword !== confirmPassword) {
+      setPwError("New passwords do not match");
+      return;
+    }
+    setPwSubmitting(true);
+    const result = await changePassword(currentPassword, newPassword, confirmPassword);
+    setPwSubmitting(false);
+    if (result.ok) {
+      setPwSuccess(result.message || "Password changed successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } else {
+      setPwError(result.message);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <GlassCard className="p-6">
+        <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
+          <User className="h-4 w-4 text-indigo-400" /> Your profile
+        </div>
+        <label className="mb-1.5 block text-xs font-medium text-white/50">Full name</label>
+        <input
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full max-w-sm rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+        />
+        <div className="mt-4 flex items-center gap-2 text-xs text-white/30">
+          Email: <span className="text-white/50">{user?.email}</span>
+          <span className="text-white/20">(not editable here)</span>
+        </div>
+        <div className="mt-5">
+          <SaveButton status={nameStatus} errorMessage={nameError} onClick={() => saveNameRaw(saveName)} />
+        </div>
+      </GlassCard>
+
+      <GlassCard className="p-6">
+        <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
+          <Lock className="h-4 w-4 text-indigo-400" /> Change password
+        </div>
+        {pwError && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-3.5 py-2.5 text-xs text-rose-300">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {pwError}
+          </div>
+        )}
+        {pwSuccess && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-3.5 py-2.5 text-xs text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> {pwSuccess}
+          </div>
+        )}
+        <form onSubmit={handlePasswordSubmit} className="max-w-sm space-y-3.5">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">Current password</label>
+            <input
+              type="password"
+              required
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">New password</label>
+            <input
+              type="password"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/50">Confirm new password</label>
+            <input
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={pwSubmitting}
+            className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-[#07080f] transition hover:bg-white/90 disabled:opacity-60"
+          >
+            {pwSubmitting ? "Updating..." : "Update password"}
+          </button>
+        </form>
+      </GlassCard>
+    </div>
+  );
+}
+
 function WorkspacePanel() {
-  const [name, setName] = useState(companyInfo.name);
+  const [org, setOrg] = useState(null);
+  const [name, setName] = useState("");
+  const [loadError, setLoadError] = useState(null);
   const { status, errorMessage, save } = useSaveStatus();
-  const usagePct = Math.round((companyInfo.observations_this_month / companyInfo.observations_limit) * 100);
+  const { user } = useAuth();
+  // PATCH /v1/organization is Owner only server-side.
+  const canEdit = user?.role === "OWNER";
+
+  useEffect(() => {
+    getOrganization()
+      .then((o) => { setOrg(o); setName(o.name); })
+      .catch((e) => setLoadError(e.message));
+  }, []);
+
+  async function saveName() {
+    const updated = await updateOrganization({ name });
+    setOrg(updated);
+  }
+
+  if (loadError) return <div className="text-sm text-rose-300">{loadError}</div>;
+  if (!org) return <div className="text-sm text-white/30">Loading workspace...</div>;
 
   return (
     <div className="space-y-6">
@@ -60,36 +201,23 @@ function WorkspacePanel() {
         <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
           <Building2 className="h-4 w-4 text-indigo-400" /> Workspace details
         </div>
-        <label className="mb-1.5 block text-xs font-medium text-white/50">Company name</label>
+        <label className="mb-1.5 block text-xs font-medium text-white/50">Organization name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full max-w-sm rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+          disabled={!canEdit}
+          className="w-full max-w-sm rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none disabled:opacity-50"
         />
+        {!canEdit && <p className="mt-1.5 text-[11px] text-white/25">Only workspace Owners can rename the organization.</p>}
         <div className="mt-4 flex items-center gap-2 text-xs text-white/30">
-          Plan: <Badge tone="active">{companyInfo.plan.replace("_", " ")}</Badge>
+          Status: <Badge tone={org.status?.toLowerCase()}>{org.status?.toLowerCase()}</Badge>
         </div>
+        {canEdit && (
+          <div className="mt-5">
+            <SaveButton status={status} errorMessage={errorMessage} onClick={() => save(saveName)} />
+          </div>
+        )}
       </GlassCard>
-
-      <GlassCard className="p-6">
-        <div className="mb-4 text-sm font-medium text-white">Usage this month</div>
-        <div className="mb-2 flex items-center justify-between text-xs text-white/40">
-          <span>Observations</span>
-          <span>{companyInfo.observations_this_month.toLocaleString()} / {companyInfo.observations_limit.toLocaleString()}</span>
-        </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-          <div
-            className={`h-full rounded-full transition-all duration-700 ${usagePct > 85 ? "bg-rose-400" : "bg-gradient-to-r from-indigo-500 to-violet-400"}`}
-            style={{ width: `${usagePct}%` }}
-          />
-        </div>
-        <div className="mt-4 flex items-center justify-between text-xs text-white/40">
-          <span>Agents connected</span>
-          <span>{companyInfo.agents_count} / {companyInfo.agents_limit}</span>
-        </div>
-      </GlassCard>
-
-      <SaveButton status={status} errorMessage={errorMessage} onClick={save} />
     </div>
   );
 }
@@ -448,7 +576,7 @@ function TeamPanel() {
 }
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState("workspace");
+  const [activeTab, setActiveTab] = useState("profile");
 
   return (
     <div>
@@ -473,6 +601,7 @@ export default function Settings() {
         </nav>
 
         <Reveal key={activeTab}>
+          {activeTab === "profile" && <ProfilePanel />}
           {activeTab === "workspace" && <WorkspacePanel />}
           {activeTab === "alerts" && <AlertPolicyPanel />}
           {activeTab === "notifications" && <NotificationsPanel />}

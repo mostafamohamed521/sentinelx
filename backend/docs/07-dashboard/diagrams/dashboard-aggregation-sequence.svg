@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" width="1100" height="620">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#334155"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#166534"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1100" height="620" fill="#f8fafc"/>
+<text x="550" y="34" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a">SentinelX — Dashboard Aggregation Sequence (Sprint 6)</text>
+<text x="550" y="55" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#64748b">One HTTP request, four independent contract calls, one assembled response.</text>
+
+<!-- Lifelines -->
+<rect x="20" y="80" width="120" height="34" rx="6" fill="#ffffff" stroke="#334155" stroke-width="1.4"/>
+<text x="80" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#0f172a">Human (JWT)</text>
+<line x1="80" y1="114" x2="80" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="190" y="80" width="180" height="34" rx="6" fill="#f5f3ff" stroke="#6d28d9" stroke-width="1.4"/>
+<text x="280" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#6d28d9">Dashboard Module</text>
+<line x1="280" y1="114" x2="280" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="440" y="80" width="110" height="34" rx="6" fill="#fff7ed" stroke="#c2410c" stroke-width="1.4"/>
+<text x="495" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#c2410c">Agent</text>
+<line x1="495" y1="114" x2="495" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="600" y="80" width="130" height="34" rx="6" fill="#ecfdf5" stroke="#166534" stroke-width="1.4"/>
+<text x="665" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#166534">Observation</text>
+<line x1="665" y1="114" x2="665" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="780" y="80" width="120" height="34" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.4"/>
+<text x="840" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#1d4ed8">Analysis</text>
+<line x1="840" y1="114" x2="840" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="950" y="80" width="110" height="34" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.4"/>
+<text x="1005" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#b91c1c">Alert</text>
+<line x1="1005" y1="114" x2="1005" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<!-- Step 1 -->
+<path d="M 80 150 L 280 150" stroke="#334155" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<text x="180" y="142" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#334155">1. GET /dashboard</text>
+
+<!-- Step 2: Agent -->
+<path d="M 280 195 L 495 195" stroke="#c2410c" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="390" y="187" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9" fill="#c2410c">2. AgentSummaryContract</text>
+<path d="M 495 215 L 280 215" stroke="#166534" stroke-width="1.3" fill="none" marker-end="url(#arrowGreen)" stroke-dasharray="3,2"/>
+
+<!-- Step 3: Observation -->
+<path d="M 280 250 L 665 250" stroke="#166534" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="470" y="242" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9" fill="#166534">3. ObservationSummaryContract</text>
+<path d="M 665 270 L 280 270" stroke="#166534" stroke-width="1.3" fill="none" marker-end="url(#arrowGreen)" stroke-dasharray="3,2"/>
+
+<!-- Step 4: Analysis -->
+<path d="M 280 305 L 840 305" stroke="#1d4ed8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="560" y="297" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9" fill="#1d4ed8">4. PredictionStatsContract::verdictDistributionForOrganization()</text>
+<path d="M 840 325 L 280 325" stroke="#166534" stroke-width="1.3" fill="none" marker-end="url(#arrowGreen)" stroke-dasharray="3,2"/>
+
+<!-- Step 5: Alert -->
+<path d="M 280 360 L 1005 360" stroke="#b91c1c" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="640" y="352" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9" fill="#b91c1c">5. AlertSummaryContract (counts + recent list)</text>
+<path d="M 1005 380 L 280 380" stroke="#166534" stroke-width="1.3" fill="none" marker-end="url(#arrowGreen)" stroke-dasharray="3,2"/>
+
+<!-- Step 6: assemble + respond -->
+<rect x="220" y="410" width="120" height="30" rx="6" fill="#ffffff" stroke="#6d28d9" stroke-width="1.2" stroke-dasharray="2,2"/>
+<text x="280" y="430" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#6d28d9">6. assemble</text>
+
+<path d="M 280 460 L 80 460" stroke="#166534" stroke-width="1.7" fill="none" marker-end="url(#arrowGreen)"/>
+<text x="180" y="452" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#166534">7. 200 OK — DashboardSnapshot</text>
+
+<!-- boundary note -->
+<rect x="180" y="500" width="740" height="90" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="1.4"/>
+<text x="550" y="525" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#92400e">Module Boundary Note</text>
+<text x="550" y="546" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#92400e">Dashboard never touches agents/observations/predictions/alerts tables directly —</text>
+<text x="550" y="564" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#92400e">every value above comes from one of the four contracts. See 04-aggregation-contracts.md.</text>
+</svg>

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -46,7 +46,7 @@ test('a verified user can log in', function () {
     ]);
     $this->getJson($url)->assertOk();
 
-    $this->postJson('/api/auth/login', [
+    $this->postJson('/api/v1/auth/login', [
         'email' => $user->email,
         'password' => 'password123',
     ])->assertOk();
@@ -59,7 +59,7 @@ test('an authenticated unverified user can request the verification link be rese
     Notification::fake();
 
     $this->withHeader('Authorization', "Bearer {$token}")
-        ->postJson('/api/auth/email/resend')
+        ->postJson('/api/v1/auth/email/resend')
         ->assertOk();
 
     Notification::assertSentTo($user, VerifyEmail::class);
@@ -96,7 +96,7 @@ test('resend does nothing but confirm when the user is already verified', functi
     $token = JWTAuth::fromUser($user);
 
     $this->withHeader('Authorization', "Bearer {$token}")
-        ->postJson('/api/auth/email/resend')
+        ->postJson('/api/v1/auth/email/resend')
         ->assertOk()
         ->assertJsonPath('message', 'Email already verified.');
 });

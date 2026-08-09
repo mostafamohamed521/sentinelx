@@ -15,9 +15,9 @@
 </g>
 <path d="M 240 108 L 460 108" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#stArrow)"/>
 <rect x="265.0" y="87.0" width="170" height="18" fill="#ffffff" stroke="#475569" stroke-width="0.8" rx="4"/>
-<text x="350.0" y="101.0" text-anchor="middle" font-size="9.5" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Owner disables / removes</text>
+<text x="350.0" y="101.0" text-anchor="middle" font-size="9.5" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Owner/Admin disables / removes</text>
 <path d="M 460 136 L 240 136" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#stArrow)"/>
 <rect x="265.0" y="140.0" width="170" height="18" fill="#ffffff" stroke="#475569" stroke-width="0.8" rx="4"/>
-<text x="350.0" y="154.0" text-anchor="middle" font-size="9.5" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Owner re-enables</text>
-<text x="350.0" y="195.0" text-anchor="middle" font-size="9.5" fill="#64748b" font-family="Segoe UI, Arial, sans-serif">DISABLED = administratively deactivated only — not an unverified-account state (see 03-authentication-flow.md)</text>
+<text x="350.0" y="154.0" text-anchor="middle" font-size="9.5" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Owner/Admin re-enables</text>
+<text x="350.0" y="195.0" text-anchor="middle" font-size="9.5" fill="#64748b" font-family="Segoe UI, Arial, sans-serif">DISABLED = administratively deactivated only — not an unverified-account state (see ADR-005-email-verified-at-column.md)</text>
 </svg>

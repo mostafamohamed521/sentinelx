@@ -44,9 +44,7 @@ The golden rule that every design decision is built on:
 ## 3. Folder Architecture
 
 ```text
-docs/
-└── backend/
-    └── database/
+backend/docs/01-database/
         │
         ├── README.md                              ← you are here
         │

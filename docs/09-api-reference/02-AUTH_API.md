@@ -39,7 +39,7 @@ Returns:
 
 ## POST /api/v1/auth/logout
 
-Removes the access token client-side. No server-side token invalidation occurs in V1 — JWTs are stateless and short-lived by design. Server-side Token Revocation is deferred to a future version. See `docs/backend/authentication/adr/ADR-005-stateless-jwt-logout.md`.
+Removes the access token client-side. No server-side token invalidation occurs in V1 — JWTs are stateless and short-lived by design. Server-side Token Revocation is deferred to a future version. See `backend/docs/00-backend_architecture/adr/ADR-005-stateless-jwt-logout.md`.
 
 ### Authentication
 

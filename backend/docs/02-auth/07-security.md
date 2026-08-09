@@ -51,7 +51,8 @@ For example: instead of returning `API Key abc123 does not exist`, we return sim
 One of the most important security principles. Every Identity gets the **minimum** permissions possible:
 
 ```text
-Member is not Owner.
+Member is not Admin.
+Admin is not Owner.
 Agent can do nothing except: Submit Observation.
 ```
 
@@ -95,9 +96,6 @@ Password Changed
 Role Changed
 Agent Created
 Agent Archived
-Invitation Created
-Invitation Accepted
-Invitation Cancelled
 ```
 
 **Why?** So that if an incident happens, we know how to trace it back.

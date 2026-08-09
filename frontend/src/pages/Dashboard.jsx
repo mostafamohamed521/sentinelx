@@ -11,13 +11,19 @@ import Reveal from "../components/ui/Reveal.jsx";
 import { PageLoader, PageError } from "../components/ui/PageState.jsx";
 import { useCountUp } from "../hooks/useOnScreen.js";
 import { getDashboard } from "../lib/api/dashboard.js";
-import { listAgents } from "../lib/api/agents.js";
 import { topThreats } from "../lib/mockDb.js";
 import {
   LayoutDashboard, AlertTriangle, ArrowRight, Bot, ShieldAlert, CheckCircle2, Radar,
 } from "lucide-react";
 
-const RISK_COLORS = { benign: "#34d399", suspicious: "#fbbf24", malicious: "#f87171" };
+const RISK_COLORS = { SAFE: "#34d399", SUSPICIOUS: "#fbbf24", MALICIOUS: "#f87171" };
+const SEVERITY_RANK = { CRITICAL: 3, HIGH: 2, MEDIUM: 1, LOW: 0 };
+
+// The Dashboard's stats/recent items can change from actions the current
+// user never took (another Agent's Observation completing analysis
+// elsewhere) — a lightweight periodic refresh, not a one-shot fetch, so
+// this view doesn't silently go stale for the length of the visit.
+const REFRESH_INTERVAL_MS = 60000;
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -44,7 +50,6 @@ function SectionLabel({ children }) {
 
 export default function Dashboard() {
   const [dash, setDash] = useState(null);
-  const [topRiskyAgents, setTopRiskyAgents] = useState([]);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("requests");
 
@@ -52,12 +57,7 @@ export default function Dashboard() {
     setError(null);
     setDash(null);
     try {
-      const [dashRes, agentsRes] = await Promise.all([
-        getDashboard(),
-        listAgents({ status: "active", sort: "-total_alerts", per_page: 4 }),
-      ]);
-      setDash(dashRes);
-      setTopRiskyAgents(agentsRes.data);
+      setDash(await getDashboard());
     } catch (e) {
       setError(e.message);
     }
@@ -65,17 +65,26 @@ export default function Dashboard() {
 
   useEffect(() => {
     load();
+    // Background refresh only — does not reset dash to null, so a periodic
+    // tick never flashes the page back to a loading state.
+    const intervalId = setInterval(() => {
+      getDashboard().then(setDash).catch((e) => setError(e.message));
+    }, REFRESH_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const totalAgents = useCountUp(dash?.stats.total_agents || 0);
-  const totalObs = useCountUp(dash?.stats.total_observations_today || 0, 1600);
-  const openAlerts = useCountUp(dash?.stats.open_alerts || 0, 1000);
+  const totalAgents = useCountUp(dash?.organization_stats.total_agents || 0);
+  const totalObs = useCountUp(dash?.organization_stats.total_observations_last_30_days || 0, 1600);
+  const openAlerts = useCountUp(dash?.organization_stats.open_alerts || 0, 1000);
 
   if (error) return <PageError message={error} onRetry={load} />;
   if (!dash) return <PageLoader />;
 
-  const { stats, risk_distribution, recent_alerts } = dash;
+  const { organization_stats: stats, risk_summary: riskSummary, recent_alerts: recentAlerts, active_agents: activeAgents } = dash;
 
+  // No time-series endpoint exists in the provided contract for either of
+  // these — this trend is illustrative only, not sourced from real data.
   const trend = Array.from({ length: 14 }).map((_, i) => ({
     day: `D${i + 1}`,
     requests: Math.round(60 + Math.sin(i / 2) * 20 + i * 1.5 + (i % 3 === 0 ? 15 : 0)),
@@ -88,12 +97,18 @@ export default function Dashboard() {
   const sparkD = [30, 28, 26, 25, 24, 23, 23];
 
   const riskPie = [
-    { name: "Benign", key: "benign", value: risk_distribution.benign },
-    { name: "Suspicious", key: "suspicious", value: risk_distribution.suspicious },
-    { name: "Malicious", key: "malicious", value: risk_distribution.malicious },
+    { name: "Safe", key: "SAFE", value: riskSummary.SAFE },
+    { name: "Suspicious", key: "SUSPICIOUS", value: riskSummary.SUSPICIOUS },
+    { name: "Malicious", key: "MALICIOUS", value: riskSummary.MALICIOUS },
   ];
 
-  const spotlightAlert = [...recent_alerts].sort((a, b) => b.risk_score - a.risk_score)[0];
+  // recent_alerts carries only { id, severity, status, created_at, reasons }
+  // — no risk_score/confidence at this level (those live under the nested
+  // `prediction` on GET /alerts/{id}) — so the spotlight is chosen by
+  // severity rank rather than a numeric score.
+  const spotlightAlert = [...recentAlerts].sort(
+    (a, b) => (SEVERITY_RANK[b.severity] ?? -1) - (SEVERITY_RANK[a.severity] ?? -1)
+  )[0];
 
   return (
     <div>
@@ -101,9 +116,9 @@ export default function Dashboard() {
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Reveal><StatCard label="Total Agents" value={Math.round(totalAgents)} sub={`${stats.active_agents} active`} icon={Bot} color="indigo" spark={sparkA} /></Reveal>
-        <Reveal delay={60}><StatCard label="Observations Today" value={`${(totalObs / 1000).toFixed(1)}K`} trend="+8%" up icon={Radar} color="emerald" spark={sparkB} /></Reveal>
-        <Reveal delay={120}><StatCard label="Open Alerts" value={Math.round(openAlerts)} trend="-20%" icon={AlertTriangle} color="amber" spark={sparkC} /></Reveal>
-        <Reveal delay={180}><StatCard label="Risk Score" value="23" sub="Low risk overall" icon={ShieldAlert} color="rose" spark={sparkD} /></Reveal>
+        <Reveal delay={60}><StatCard label="Observations (30d)" value={`${(totalObs / 1000).toFixed(1)}K`} icon={Radar} color="emerald" spark={sparkB} /></Reveal>
+        <Reveal delay={120}><StatCard label="Open Alerts" value={Math.round(openAlerts)} icon={AlertTriangle} color="amber" spark={sparkC} /></Reveal>
+        <Reveal delay={180}><StatCard label="Malicious Verdicts" value={riskSummary.MALICIOUS} sub="Across all analyzed observations" icon={ShieldAlert} color="rose" spark={sparkD} /></Reveal>
       </div>
 
       <SectionLabel>Live Signal</SectionLabel>
@@ -124,7 +139,9 @@ export default function Dashboard() {
                   </button>
                 ))}
               </div>
-              <span className="text-[11px] text-white/25">Last 14 days</span>
+              {/* No time-series endpoint is part of the provided contract —
+                  labeled honestly rather than presented as live data. */}
+              <span className="text-[11px] text-white/25">Last 14 days · simulated</span>
             </div>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
@@ -156,24 +173,12 @@ export default function Dashboard() {
               <GlassCard rounded="3xl" className="relative flex h-full flex-col overflow-hidden border-rose-500/25 p-6">
                 <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-rose-500/20 blur-3xl" />
                 <div className="relative mb-3 flex items-center justify-between">
-                  <Badge tone={spotlightAlert.severity}>{spotlightAlert.severity} · needs review</Badge>
+                  <Badge tone={spotlightAlert.severity?.toLowerCase()}>{spotlightAlert.severity?.toLowerCase()} · needs review</Badge>
                   <ArrowRight className="h-3.5 w-3.5 text-white/25" />
                 </div>
-                <div className="relative text-sm font-medium text-white/80">{spotlightAlert.agent_name}</div>
-                <p className="relative mt-1.5 text-sm leading-relaxed text-white/45">{spotlightAlert.reasons[0]}</p>
-
-                <div className="relative mt-auto flex items-end justify-between pt-6">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wide text-white/30">Risk Score</div>
-                    <div className="text-3xl font-semibold text-white">{spotlightAlert.risk_score}</div>
-                  </div>
-                  <svg viewBox="0 0 36 36" className="h-16 w-16 -rotate-90">
-                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#ffffff10" strokeWidth="3.5" />
-                    <circle
-                      cx="18" cy="18" r="15.5" fill="none" stroke="#f472b6" strokeWidth="3.5"
-                      strokeDasharray={`${spotlightAlert.confidence * 100} 100`} strokeLinecap="round"
-                    />
-                  </svg>
+                <p className="relative mt-1.5 text-sm leading-relaxed text-white/70">{spotlightAlert.reasons?.[0] || "Flagged behavior"}</p>
+                <div className="relative mt-auto pt-6 text-xs text-white/30">
+                  {new Date(spotlightAlert.created_at).toLocaleString()}
                 </div>
               </GlassCard>
             </Link>
@@ -223,7 +228,9 @@ export default function Dashboard() {
           <GlassCard rounded="3xl" className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm font-medium text-white">Top Threats</span>
-              <span className="text-[11px] text-white/30">All Agents</span>
+              {/* No endpoint in the provided contract aggregates threats by
+                  name — this list is sample data, not sourced from the API. */}
+              <span className="text-[11px] text-white/30">Sample</span>
             </div>
             <div className="divide-y divide-white/[0.05]">
               {topThreats.map((t) => (
@@ -242,13 +249,14 @@ export default function Dashboard() {
         <Reveal delay={160}>
           <GlassCard rounded="3xl" className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm font-medium text-white">Agents to Watch</span>
+              <span className="text-sm font-medium text-white">Active Agents</span>
               <Link to="/agents" className="flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-indigo-300">
                 View all <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
             <div className="divide-y divide-white/[0.05]">
-              {topRiskyAgents.map((a) => (
+              {activeAgents.length === 0 && <p className="py-2.5 text-sm text-white/30">No active agents yet.</p>}
+              {activeAgents.map((a) => (
                 <Link
                   key={a.id}
                   to={`/agents/${a.id}`}
@@ -258,7 +266,7 @@ export default function Dashboard() {
                     <Bot className="h-3.5 w-3.5 text-indigo-400" />
                     {a.name}
                   </span>
-                  <Badge tone={a.risk_level}>{a.risk_level}</Badge>
+                  <Badge tone={a.status?.toLowerCase()}>{a.status?.toLowerCase()}</Badge>
                 </Link>
               ))}
             </div>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" width="1100" height="620">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#334155"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#166534"/>
+  </marker>
+  <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#7e22ce"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1100" height="620" fill="#f8fafc"/>
+<text x="550" y="34" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a">SentinelX — Alert Generation Sequence (Sprint 5)</text>
+<text x="550" y="55" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#64748b">Event-driven, not polling — reusing the pattern from Agent's ArchiveAgentAction → AgentArchived (Stage 2).</text>
+
+<!-- Lifelines -->
+<rect x="30" y="80" width="180" height="34" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.4"/>
+<text x="120" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#1d4ed8">Analysis Module</text>
+<line x1="120" y1="114" x2="120" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="280" y="80" width="140" height="34" rx="6" fill="#fdf4ff" stroke="#7e22ce" stroke-width="1.4"/>
+<text x="350" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#7e22ce">Event Bus</text>
+<line x1="350" y1="114" x2="350" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="480" y="80" width="220" height="34" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.4"/>
+<text x="590" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#b91c1c">Alert Listener</text>
+<line x1="590" y1="114" x2="590" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="760" y="80" width="150" height="34" rx="6" fill="#fdf4ff" stroke="#7e22ce" stroke-width="1.4"/>
+<text x="835" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#7e22ce">predictions table</text>
+<line x1="835" y1="114" x2="835" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<rect x="960" y="80" width="120" height="34" rx="6" fill="#ecfdf5" stroke="#166534" stroke-width="1.4"/>
+<text x="1020" y="102" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#166534">alerts table</text>
+<line x1="1020" y1="114" x2="1020" y2="580" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+<!-- Step 1: prediction stored (already happened, Stage 4) -->
+<path d="M 120 150 L 835 150" stroke="#94a3b8" stroke-width="1.3" fill="none" marker-end="url(#arrow)" stroke-dasharray="3,2"/>
+<text x="480" y="142" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#64748b">(already happened, Stage 4) INSERT INTO predictions; markCompleted()</text>
+
+<!-- Step 2: dispatch event -->
+<path d="M 120 190 L 350 190" stroke="#1d4ed8" stroke-width="1.7" fill="none" marker-end="url(#arrow)"/>
+<text x="235" y="182" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#1d4ed8">1. dispatch(PredictionStored) — the ONE new line this Sprint</text>
+
+<path d="M 350 225 L 590 225" stroke="#7e22ce" stroke-width="1.6" fill="none" marker-end="url(#arrowPurple)"/>
+<text x="470" y="217" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#7e22ce">2. notify listener</text>
+
+<!-- Step 3: fetch prediction -->
+<path d="M 590 260 L 835 260" stroke="#b91c1c" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="710" y="252" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#b91c1c">3. PredictionLookupContract::findByObservationId()</text>
+
+<path d="M 835 285 L 590 285" stroke="#166534" stroke-width="1.4" fill="none" marker-end="url(#arrowGreen)" stroke-dasharray="3,2"/>
+<text x="710" y="277" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#166534">Prediction { verdict, risk_score, ... }</text>
+
+<!-- Step 4: policy check -->
+<rect x="520" y="305" width="140" height="30" rx="6" fill="#ffffff" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="2,2"/>
+<text x="590" y="325" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#b91c1c">4. verdict == SAFE?</text>
+
+<!-- Step 5: severity mapping -->
+<rect x="520" y="350" width="140" height="30" rx="6" fill="#ffffff" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="2,2"/>
+<text x="590" y="370" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#b91c1c">5. SeverityMapper</text>
+
+<!-- Step 6: insert alert -->
+<path d="M 590 395 L 1020 395" stroke="#166534" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<text x="800" y="387" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#166534">6. INSERT INTO alerts (prediction_id, severity, status: OPEN)</text>
+
+<!-- SAFE branch -->
+<line x1="60" y1="430" x2="1060" y2="430" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2,3"/>
+<text x="550" y="424" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" fill="#94a3b8">Alternative: verdict == SAFE</text>
+<text x="550" y="452" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#64748b">Listener stops immediately — no Alert row is ever created</text>
+
+<!-- boundary note -->
+<rect x="180" y="490" width="740" height="110" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="1.4"/>
+<text x="550" y="515" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#92400e">Module Boundary Note</text>
+<text x="550" y="536" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#92400e">Analysis never calls Alert directly — it only dispatches an event and has zero</text>
+<text x="550" y="554" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#92400e">knowledge of who listens. Alert never calls Analysis to modify anything — only reads,</text>
+<text x="550" y="572" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#92400e">via PredictionLookupContract. See 05-cross-module-boundaries.md.</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="1000" height="480">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#334155"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1000" height="480" fill="#f8fafc"/>
+<text x="500" y="34" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a">SentinelX — Observation analysis_status State Machine</text>
+<text x="500" y="55" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#64748b">Observation module writes PENDING only. Every transition after that is Analysis's (Stage 4) responsibility.</text>
+
+<!-- PENDING (owned by Observation) -->
+<rect x="60" y="110" width="200" height="90" rx="10" fill="#ecfdf5" stroke="#166534" stroke-width="2.2"/>
+<text x="160" y="145" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#166534">PENDING</text>
+<text x="160" y="166" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#166534">written by Observation</text>
+<text x="160" y="182" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#166534">module — Stage 3 (this doc)</text>
+
+<!-- PROCESSING -->
+<rect x="360" y="110" width="200" height="90" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2.2"/>
+<text x="460" y="145" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#1d4ed8">PROCESSING</text>
+<text x="460" y="166" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#1d4ed8">written by Analysis</text>
+<text x="460" y="182" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#1d4ed8">module — Stage 4</text>
+
+<!-- COMPLETED -->
+<rect x="660" y="60" width="200" height="90" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2.2"/>
+<text x="760" y="95" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#1d4ed8">COMPLETED</text>
+<text x="760" y="116" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#1d4ed8">written by Analysis</text>
+<text x="760" y="132" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#1d4ed8">module — Stage 4</text>
+
+<!-- FAILED -->
+<rect x="660" y="200" width="200" height="90" rx="10" fill="#fef2f2" stroke="#b91c1c" stroke-width="2.2"/>
+<text x="760" y="235" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#b91c1c">FAILED</text>
+<text x="760" y="256" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#b91c1c">written by Analysis</text>
+<text x="760" y="272" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10.5" fill="#b91c1c">module — Stage 4</text>
+
+<!-- transitions -->
+<path d="M 260 155 L 360 155" stroke="#334155" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<text x="310" y="147" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#334155">Worker picks up</text>
+
+<path d="M 560 140 L 660 105" stroke="#334155" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<text x="620" y="112" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#334155">ML succeeds</text>
+
+<path d="M 560 170 L 660 235" stroke="#b91c1c" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<text x="620" y="212" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="10" fill="#b91c1c">ML fails / errors</text>
+
+<!-- boundary note -->
+<rect x="60" y="330" width="800" height="110" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="1.4"/>
+<text x="460" y="355" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#92400e">Module Boundary Note</text>
+<text x="460" y="378" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="11" fill="#92400e">The Observation module never writes PROCESSING, COMPLETED, or FAILED itself.</text>
+<text x="460" y="398" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="11" fill="#92400e">It only ever exposes markProcessing() / markCompleted() / markFailed() on its own</text>
+<text x="460" y="418" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="11" fill="#92400e">Repository, for Analysis (Stage 4) to call. See 05-cross-module-boundaries.md §2.</text>
+
+<!-- legend -->
+<rect x="880" y="330" width="100" height="90" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="892" y="342" width="16" height="16" fill="#ecfdf5" stroke="#166534" stroke-width="1.4"/>
+<text x="914" y="354" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#334155">Observation</text>
+<rect x="892" y="368" width="16" height="16" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.4"/>
+<text x="914" y="380" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#334155">Analysis</text>
+<rect x="892" y="394" width="16" height="16" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.4"/>
+<text x="914" y="406" font-family="Consolas, Menlo, monospace" font-size="9.5" fill="#334155">Analysis</text>
+</svg>

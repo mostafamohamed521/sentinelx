@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ases"
+version = "1.0.0"
+description = "ASES Integration Layer — the official client SDK connecting AI Agent frameworks to SentinelX."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "SentinelX SDK / Integration Architecture Team" },
+]
+keywords = ["sentinelx", "ases", "ai-agent", "security", "monitoring", "observability"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+crewai = ["crewai==0.11.2"]
+[project.urls]
+Homepage = "https://sentinelx.example.com"
+Documentation = "https://docs.sentinelx.example.com"
+
+[tool.setuptools.packages.find]
+include = ["ases*"]
+
+[tool.setuptools.package-data]
+ases = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -24,7 +24,7 @@ Examples include:
 | Parameter | Description |
 |-----------|-------------|
 |page|Page number (starts at 1).|
-|per_page|Number of items per page.|
+|per_page|Number of items per page. Default 20, **maximum 100** — a value above 100 is silently clamped down to 100, not rejected (PERF-003; see `App\Http\Controllers\Controller::perPage()`, the one shared helper applied identically across all six collection endpoints).|
 
 ---
 

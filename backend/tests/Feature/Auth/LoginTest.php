@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\User;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
+use App\Modules\Organization\Infrastructure\Persistence\Organization;
 use Illuminate\Support\Facades\Hash;
 
 // === HAPPY PATH ===
@@ -11,7 +12,7 @@ test('a verified, active user can log in and receives a bearer token', function 
         'password_hash' => Hash::make('password123'),
     ]);
 
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'ahmed@acme.example',
         'password' => 'password123',
     ]);
@@ -28,7 +29,7 @@ test('login updates last_login_at', function () {
         'last_login_at' => null,
     ]);
 
-    $this->postJson('/api/auth/login', [
+    $this->postJson('/api/v1/auth/login', [
         'email' => 'ahmed@acme.example',
         'password' => 'password123',
     ])->assertOk();
@@ -44,23 +45,27 @@ test('login fails with a generic message for a wrong password', function () {
         'password_hash' => Hash::make('password123'),
     ]);
 
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'ahmed@acme.example',
         'password' => 'wrong-password',
     ]);
 
     $response->assertUnauthorized()
-        ->assertExactJson(['error' => 'authentication_failed', 'message' => 'Authentication failed.']);
+        ->assertJsonPath('error.code', 'AUTHENTICATION_FAILED')
+        ->assertJsonPath('error.message', 'Authentication failed.')
+        ->assertJsonStructure(['error' => ['request_id']]);
 });
 
 test('login fails with a generic message for an unknown email', function () {
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'nobody@acme.example',
         'password' => 'password123',
     ]);
 
     $response->assertUnauthorized()
-        ->assertExactJson(['error' => 'authentication_failed', 'message' => 'Authentication failed.']);
+        ->assertJsonPath('error.code', 'AUTHENTICATION_FAILED')
+        ->assertJsonPath('error.message', 'Authentication failed.')
+        ->assertJsonStructure(['error' => ['request_id']]);
 });
 
 test('login fails with a generic message for a disabled user', function () {
@@ -69,13 +74,34 @@ test('login fails with a generic message for a disabled user', function () {
         'password_hash' => Hash::make('password123'),
     ]);
 
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'ahmed@acme.example',
         'password' => 'password123',
     ]);
 
     $response->assertUnauthorized()
-        ->assertExactJson(['error' => 'authentication_failed', 'message' => 'Authentication failed.']);
+        ->assertJsonPath('error.code', 'AUTHENTICATION_FAILED')
+        ->assertJsonPath('error.message', 'Authentication failed.')
+        ->assertJsonStructure(['error' => ['request_id']]);
+});
+
+test('login fails with a generic message for a user whose Organization is suspended (STATE-002)', function () {
+    $organization = Organization::factory()->suspended()->create();
+
+    User::factory()->for($organization)->create([
+        'email' => 'ahmed@acme.example',
+        'password_hash' => Hash::make('password123'),
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/login', [
+        'email' => 'ahmed@acme.example',
+        'password' => 'password123',
+    ]);
+
+    $response->assertUnauthorized()
+        ->assertJsonPath('error.code', 'AUTHENTICATION_FAILED')
+        ->assertJsonPath('error.message', 'Authentication failed.')
+        ->assertJsonStructure(['error' => ['request_id']]);
 });
 
 test('login fails with a generic message for an unverified user', function () {
@@ -84,24 +110,26 @@ test('login fails with a generic message for an unverified user', function () {
         'password_hash' => Hash::make('password123'),
     ]);
 
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'ahmed@acme.example',
         'password' => 'password123',
     ]);
 
     $response->assertUnauthorized()
-        ->assertExactJson(['error' => 'authentication_failed', 'message' => 'Authentication failed.']);
+        ->assertJsonPath('error.code', 'AUTHENTICATION_FAILED')
+        ->assertJsonPath('error.message', 'Authentication failed.')
+        ->assertJsonStructure(['error' => ['request_id']]);
 });
 
 test('login is rate limited', function () {
     for ($i = 0; $i < 5; $i++) {
-        $this->postJson('/api/auth/login', [
+        $this->postJson('/api/v1/auth/login', [
             'email' => 'nobody@acme.example',
             'password' => 'password123',
         ]);
     }
 
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'nobody@acme.example',
         'password' => 'password123',
     ]);

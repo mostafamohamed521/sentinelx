@@ -1,27 +1,27 @@
 <?php
 
-use App\Models\Agent;
-use App\Models\Alert;
-use App\Models\ApiKey;
-use App\Models\Company;
-use App\Models\Observation;
-use App\Models\Prediction;
-use App\Models\User;
+use App\Modules\Agent\Infrastructure\Persistence\Agent;
+use App\Modules\Alert\Infrastructure\Persistence\Alert;
+use App\Modules\Analysis\Infrastructure\Persistence\Prediction;
+use App\Modules\Authentication\ApiKey\Infrastructure\Persistence\ApiKey;
+use App\Modules\Authentication\Identity\Infrastructure\Persistence\User;
+use App\Modules\Observation\Infrastructure\Persistence\Observation;
+use App\Modules\Organization\Infrastructure\Persistence\Organization;
 use Illuminate\Database\QueryException;
 
 // Every foreign key in the schema uses ON DELETE RESTRICT — no CASCADE,
 // no SET NULL. See backend/docs/database/02-schema/relationships.md.
 
-test('a company cannot be deleted while it has users', function () {
+test('an organization cannot be deleted while it has users', function () {
     $user = User::factory()->create();
 
-    expect(fn () => $user->company->delete())->toThrow(QueryException::class);
+    expect(fn () => $user->organization->delete())->toThrow(QueryException::class);
 });
 
-test('a company cannot be deleted while it has agents', function () {
+test('an organization cannot be deleted while it has agents', function () {
     $agent = Agent::factory()->create();
 
-    expect(fn () => $agent->company->delete())->toThrow(QueryException::class);
+    expect(fn () => $agent->organization->delete())->toThrow(QueryException::class);
 });
 
 test('an agent cannot be deleted while it has api keys', function () {
@@ -49,17 +49,17 @@ test('a prediction cannot be deleted while it has an alert', function () {
 });
 
 test('the full dependency chain can be built end to end', function () {
-    $company = Company::factory()->create();
-    $agent = Agent::factory()->for($company)->create();
+    $organization = Organization::factory()->create();
+    $agent = Agent::factory()->for($organization)->create();
     $apiKey = ApiKey::factory()->for($agent)->create();
-    $observation = Observation::factory()->for($agent)->for($company)->completed()->create();
+    $observation = Observation::factory()->for($agent)->for($organization)->completed()->create();
     $prediction = Prediction::factory()->malicious()->for($observation)->create();
     $alert = Alert::factory()->for($prediction)->create();
 
-    expect($agent->company->is($company))->toBeTrue()
+    expect($agent->organization->is($organization))->toBeTrue()
         ->and($apiKey->agent->is($agent))->toBeTrue()
         ->and($observation->agent->is($agent))->toBeTrue()
-        ->and($observation->company->is($company))->toBeTrue()
+        ->and($observation->organization->is($organization))->toBeTrue()
         ->and($prediction->observation->is($observation))->toBeTrue()
         ->and($alert->prediction->is($prediction))->toBeTrue();
 });

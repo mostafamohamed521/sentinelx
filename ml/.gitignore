@@ -1,0 +1,10 @@
+# Trained model artifacts -- required to run (see README.md), but binary,
+# environment-specific, and not something git history should carry.
+pipeline/*.joblib
+
+# Dataset CSVs -- optional (see README.md / config.py), not part of this repo.
+AI Agent Cybersecurity Dataset/
+
+__pycache__/
+*.pyc
+.venv/

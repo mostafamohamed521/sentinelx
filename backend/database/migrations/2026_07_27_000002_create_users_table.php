@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\UserStatus;
+use App\Modules\Authentication\Identity\Domain\UserStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained('companies')->restrictOnDelete();
+            $table->foreignUuid('organization_id')->constrained('organizations')->restrictOnDelete();
             $table->string('full_name');
             $table->string('email')->unique();
             $table->string('password_hash');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
 
-            $table->index('company_id');
+            $table->index('organization_id');
         });
     }
 

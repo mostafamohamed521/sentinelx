@@ -174,6 +174,30 @@ This fits the nature of Agents well.
 
 ---
 
+## 10a. Every Status Writer, in One Place (STATE-005)
+
+`ApiKeyStatus` has three legitimate writers, spread across two modules — the integration audit (Session 03, STATE-005) found no functional problem with any of them, only that a future reader would have to already know to look in a model hook and a cross-module listener, in addition to the obvious explicit rotation Action. Documented here, in one place, so that's no longer necessary:
+
+```text
+1. GenerateApiKeyAction        — creates a new key as ACTIVE (the initial write)
+2. ApiKey model's saved() hook — enforces "at most one ACTIVE key per Agent"
+                                    by revoking any prior ACTIVE key when a new
+                                    one is saved as ACTIVE (belongs to the
+                                    Authentication\ApiKey module itself)
+3. RevokeKeysOnAgentArchived    — a listener, owned by the Agent module's
+                                    boundary, that revokes every ACTIVE key
+                                    for an Agent when that Agent is archived
+                                    (cross-module: Agent → Authentication\ApiKey)
+```
+
+No change was made to any of these three — each is legitimately scoped to the concern that owns it. This section exists purely so all three are discoverable from the API Key's own documentation, not just from reading the code.
+
+## 10b. `expires_at` Is a Second, Currently Dormant Status Dimension (STATE-006)
+
+The `api_keys` table has an `expires_at` column, and `ValidateApiKeyAction` already checks it (`$apiKey->expires_at && $apiKey->expires_at->isPast()` rejects the key). **Nothing in this codebase currently writes to `expires_at`** — every API Key created today has `expires_at = null` and is therefore never subject to this check in practice. This is dormant, not broken: `status: ACTIVE` alone is **not**, by itself, sufficient to conclude a key is currently usable — `expires_at` is a second, independent dimension that must also be checked, and already is. If real expiry ever becomes a planned feature (e.g. a scheduled job that flips `status` to `REVOKED` once `expires_at` passes, or a "create with expiry" option on `GenerateApiKeyAction`), that's new, deliberate feature work — not a bug fix to this dormant column, since nothing yet populates the field such a job would react to.
+
+---
+
 ## 11. Is the API Key Part of the Domain?
 
 **Yes** — and this differs from the JWT's answer.
