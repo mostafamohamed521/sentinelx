@@ -12,6 +12,7 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Agents from "./pages/Agents.jsx";
 import AgentDetails from "./pages/AgentDetails.jsx";
@@ -19,6 +20,7 @@ import Observations from "./pages/Observations.jsx";
 import ObservationDetails from "./pages/ObservationDetails.jsx";
 import Alerts from "./pages/Alerts.jsx";
 import AlertDetails from "./pages/AlertDetails.jsx";
+import AuditLogs from "./pages/AuditLogs.jsx";
 import Settings from "./pages/Settings.jsx";
 
 const INTRO_KEY = "sentinelx_intro_seen";
@@ -54,6 +56,7 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email/:id/:hash" element={<VerifyEmail />} />
         </Route>
 
         {/* Authenticated app shell — protected */}
@@ -66,6 +69,7 @@ export default function App() {
             <Route path="/observations/:observationId" element={<ObservationDetails />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/alerts/:alertId" element={<AlertDetails />} />
+            <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
         </Route>
