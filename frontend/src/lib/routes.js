@@ -2,7 +2,7 @@
 // Sidebar, breadcrumbs, and route definitions all read from this file
 // instead of hard-coding paths/labels in multiple places.
 
-import { LayoutDashboard, Bot, Activity, AlertTriangle, Settings } from "lucide-react";
+import { LayoutDashboard, Bot, Activity, AlertTriangle, Settings, ScrollText } from "lucide-react";
 
 export const routes = {
   dashboard: { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard, inNav: true },
@@ -12,6 +12,10 @@ export const routes = {
   observationDetails: { path: "/observations/:observationId", label: "Observation Details", parent: "observations", inNav: false },
   alerts: { path: "/alerts", label: "Alerts", icon: AlertTriangle, inNav: true },
   alertDetails: { path: "/alerts/:alertId", label: "Alert Details", parent: "alerts", inNav: false },
+  // GET /v1/audit-logs and GET /v1/security-logs are Owner/Admin only
+  // server-side (403 for Member) — gated here so Member never sees the nav
+  // entry in the first place.
+  auditLogs: { path: "/audit-logs", label: "Audit Logs", icon: ScrollText, inNav: true, roles: ["OWNER", "ADMIN"] },
   settings: { path: "/settings", label: "Settings", icon: Settings, inNav: true },
 };
 
