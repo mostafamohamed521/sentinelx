@@ -1,76 +1,110 @@
 // In-memory mock "database" backing every mock API module under src/lib/api/.
-// Unlike static mockData.js, this supports real mutations (archive an agent,
+// Unlike static mockData.js (removed — it duplicated this data and was
+// never imported), this supports real mutations (archive an agent,
 // acknowledge an alert, rotate a key) that persist for the rest of the
-// session, and real pagination/filtering/sorting — so the pages behave
-// exactly as they will against the real Backend.
+// session, and real pagination/filtering — so the pages behave the same
+// shape as they will against the real Backend.
+//
+// Agent/Alert/Prediction field names and enum values below match the
+// provided endpoint contract exactly (AgentResource, AlertSummaryResource /
+// AlertDetailResource, PredictionDetailResource, AuditLogResource) —
+// including the real Backend's uppercase status/severity/role enums.
+// Anything the contract does NOT expose on a resource (e.g. an Agent's
+// risk_level, an Alert's agent_name) is deliberately absent here too, so a
+// real mismatch would surface instead of being silently masked by the mock.
 
-// Agent/Alert `status` values below are uppercase to match the real
-// Backend's actual AgentStatus/AlertStatus enums exactly — see
-// CONTRACT-010/STATE-007. Kept consistent here rather than normalized away
-// in apiClient.js so a future real mismatch would still surface, not be
-// silently masked.
 let agents = [
   {
-    id: "agt_789", name: "Finance Assistant", framework: "CrewAI", version: "1.2.0",
-    status: "ACTIVE", risk_level: "low", last_activity_at: "2026-07-25T09:45:00Z",
-    total_observations: 3200, total_alerts: 2, description: "Reviews invoices and generates financial reports.",
-    api_key: "ases_live_a1b2c3d4e5f6",
+    id: "agt_789", name: "Finance Assistant", framework: "CrewAI", framework_version: "1.2.0",
+    description: "Reviews invoices and generates financial reports.",
+    status: "ACTIVE", last_seen_at: "2026-07-25T09:45:00Z",
+    created_at: "2026-06-01T09:00:00Z", updated_at: "2026-07-25T09:45:00Z",
   },
   {
-    id: "agt_790", name: "Support Agent", framework: "LangChain", version: "0.9.4",
-    status: "ACTIVE", risk_level: "medium", last_activity_at: "2026-07-25T10:02:00Z",
-    total_observations: 1890, total_alerts: 1, description: "Handles customer support tickets and refunds.",
-    api_key: "ases_live_f6e5d4c3b2a1",
+    id: "agt_790", name: "Support Agent", framework: "LangChain", framework_version: "0.9.4",
+    description: "Handles customer support tickets and refunds.",
+    status: "ACTIVE", last_seen_at: "2026-07-25T10:02:00Z",
+    created_at: "2026-06-03T09:00:00Z", updated_at: "2026-07-25T10:02:00Z",
   },
   {
-    id: "agt_791", name: "Sales Agent", framework: "CrewAI", version: "1.1.0",
-    status: "ACTIVE", risk_level: "low", last_activity_at: "2026-07-25T08:30:00Z",
-    total_observations: 980, total_alerts: 0, description: "Qualifies leads and drafts outbound emails.",
-    api_key: "ases_live_9z8y7x6w5v4u",
+    id: "agt_791", name: "Sales Agent", framework: "CrewAI", framework_version: "1.1.0",
+    description: "Qualifies leads and drafts outbound emails.",
+    status: "ACTIVE", last_seen_at: "2026-07-25T08:30:00Z",
+    created_at: "2026-06-10T09:00:00Z", updated_at: "2026-07-25T08:30:00Z",
   },
   {
-    id: "agt_792", name: "Research Agent", framework: "Custom", version: "0.4.1",
-    status: "ARCHIVED", risk_level: "low", last_activity_at: "2026-06-01T00:00:00Z",
-    total_observations: 210, total_alerts: 0, description: "Summarizes market research documents.",
-    api_key: "ases_live_1a2b3c4d5e6f",
+    id: "agt_792", name: "Research Agent", framework: "Custom", framework_version: "0.4.1",
+    description: "Summarizes market research documents.",
+    status: "ARCHIVED", last_seen_at: "2026-06-01T00:00:00Z",
+    created_at: "2026-05-01T09:00:00Z", updated_at: "2026-06-01T00:00:00Z",
   },
 ];
 
-// `analysis_status` mirrors the real Backend's AnalysisStatus lifecycle
-// (PENDING/PROCESSING/COMPLETED/FAILED) — see PERF-001. Both mock
-// observations below already carry a verdict/prediction, so they are
-// COMPLETED; the mock does not simulate a live PENDING->COMPLETED
-// transition, so ObservationDetails.jsx's polling behavior is only fully
-// exercisable against a real Backend, not MOCK_MODE.
+// Observations are NOT part of the provided endpoint contract for this
+// pass (no OBSERVATIONS_API doc confirmed their shape) — left as-is from a
+// prior integration attempt, unverified.
+// Observations — matches ObservationResource / ObservationSummaryResource
+// exactly. `raw_ases_json` mirrors the shape an Agent actually POSTs to
+// /v1/observations (context/events/metadata) — the list endpoints never
+// expose it or a verdict; only the single-resource GET does, and only
+// alongside the embedded `prediction` (see toObservationSummary/Detail below).
 let observations = [
   {
-    id: "obs_001", agent_id: "agt_789", agent_name: "Finance Assistant",
+    id: "obs_001", agent_id: "agt_789", organization_id: "org_456",
     analysis_status: "COMPLETED",
-    verdict: "SAFE", confidence: 0.97, risk_score: 8, created_at: "2026-07-25T09:00:00Z",
-    context: { framework: "CrewAI", agent_version: "1.2.0", environment: "production", started_at: "2026-07-21T10:15:00Z", finished_at: "2026-07-21T10:15:08Z" },
-    events: [
-      { sequence: 1, timestamp: "2026-07-21T10:15:01Z", event_type: "api_call", resource: "OpenAI API", operation: "POST", result: "success" },
-      { sequence: 2, timestamp: "2026-07-21T10:15:03Z", event_type: "file_access", resource: "invoices_june.xlsx", operation: "read", result: "success" },
-    ],
+    received_at: "2026-07-24T14:09:35Z", processing_started_at: "2026-07-24T14:09:36Z", processed_at: "2026-07-24T14:09:40Z",
+    created_at: "2026-07-24T14:09:35Z", updated_at: "2026-07-24T14:09:40Z",
+    raw_ases_json: {
+      context: { framework: "CrewAI", execution_start_time: "2026-07-24T14:09:30Z", execution_finish_time: "2026-07-24T14:09:34Z" },
+      events: [
+        { header: { event_type: "api_call", timestamp: "2026-07-24T14:09:31Z" }, payload: { resource: "OpenAI API", operation: "POST", result: "success" } },
+        { header: { event_type: "file_access", timestamp: "2026-07-24T14:09:33Z" }, payload: { resource: "invoices_june.xlsx", operation: "read", result: "success" } },
+      ],
+      metadata: { spec_version: "1.0", sdk_version: "0.4.2" },
+    },
   },
   {
-    id: "obs_002", agent_id: "agt_790", agent_name: "Support Agent",
+    id: "obs_002", agent_id: "agt_790", organization_id: "org_456",
     analysis_status: "COMPLETED",
-    verdict: "SUSPICIOUS", confidence: 0.91, risk_score: 78, created_at: "2026-07-25T09:50:00Z",
-    context: { framework: "LangChain", agent_version: "0.9.4", environment: "production", started_at: "2026-07-25T09:49:52Z", finished_at: "2026-07-25T09:50:00Z" },
-    events: [
-      { sequence: 1, timestamp: "2026-07-25T09:49:53Z", event_type: "api_call", resource: "OpenAI API", operation: "POST", result: "success" },
-      { sequence: 2, timestamp: "2026-07-25T09:49:55Z", event_type: "file_access", resource: "/etc/shadow", operation: "read", result: "success" },
-      { sequence: 3, timestamp: "2026-07-25T09:49:58Z", event_type: "network_connection", resource: "185.220.101.4", operation: "connect", result: "success" },
-    ],
+    received_at: "2026-07-25T09:49:52Z", processing_started_at: "2026-07-25T09:49:53Z", processed_at: "2026-07-25T09:50:02Z",
+    created_at: "2026-07-25T09:49:52Z", updated_at: "2026-07-25T09:50:02Z",
+    raw_ases_json: {
+      context: { framework: "LangChain", execution_start_time: "2026-07-25T09:49:52Z", execution_finish_time: "2026-07-25T09:50:00Z" },
+      events: [
+        { header: { event_type: "api_call", timestamp: "2026-07-25T09:49:53Z" }, payload: { resource: "OpenAI API", operation: "POST", result: "success" } },
+        { header: { event_type: "file_access", timestamp: "2026-07-25T09:49:55Z" }, payload: { resource: "/etc/shadow", operation: "read", result: "success" } },
+        { header: { event_type: "network_connection", timestamp: "2026-07-25T09:49:58Z" }, payload: { resource: "185.220.101.4", operation: "connect", result: "success" } },
+      ],
+      metadata: { spec_version: "1.0", sdk_version: "0.4.2" },
+    },
+  },
+  // Still PENDING — exercises the polling behavior in ObservationDetails.jsx
+  // under MOCK_MODE too, not just against a real Backend.
+  {
+    id: "obs_003", agent_id: "agt_791", organization_id: "org_456",
+    analysis_status: "PENDING",
+    received_at: "2026-07-25T10:05:00Z", processing_started_at: null, processed_at: null,
+    created_at: "2026-07-25T10:05:00Z", updated_at: "2026-07-25T10:05:00Z",
+    raw_ases_json: {
+      context: { framework: "CrewAI", execution_start_time: "2026-07-25T10:04:55Z", execution_finish_time: "2026-07-25T10:04:59Z" },
+      events: [
+        { header: { event_type: "api_call", timestamp: "2026-07-25T10:04:56Z" }, payload: { resource: "OpenAI API", operation: "POST", result: "success" } },
+      ],
+      metadata: { spec_version: "1.0", sdk_version: "0.4.2" },
+    },
   },
 ];
 
-let alerts = [
+// Predictions — the Analysis module's resource, embedded into
+// AlertDetailResource as `prediction` (PredictionDetailResource shape:
+// id, verdict, confidence, risk_score, summary, model_version, analyzed_at,
+// reasons, evidence). Alerts reference a Prediction by id, never inline it.
+let predictions = [
   {
-    id: "alt_555", agent_id: "agt_790", agent_name: "Support Agent",
-    severity: "critical", prediction: "Malicious", confidence: 0.98, risk_score: 92,
-    status: "OPEN", detected_at: "2026-07-25T09:50:00Z",
+    id: "pred_555", observation_id: "obs_002",
+    verdict: "MALICIOUS", confidence: 0.98, risk_score: 92,
+    summary: "Prompt injection attempt combined with an out-of-scope sensitive file read and an unexpected outbound network connection.",
+    model_version: "sentinelx-v3.2", analyzed_at: "2026-07-25T09:50:02Z",
     reasons: [
       "Prompt injection attempt detected in LLM API call",
       "Sensitive file accessed outside expected scope",
@@ -80,16 +114,31 @@ let alerts = [
       { sequence: 1, evidence_type: "Prompt Injection", reference: "HF-PROMPT-INJECTION", confidence: 0.946 },
       { sequence: 2, evidence_type: "Threat Match", reference: "AML.T0054", confidence: null },
     ],
-    related_cves: [{ cve_id: "CVE-2026-1234", severity: "high", exploited_in_wild: true }],
-    recommended_actions: ["Isolate the agent temporarily", "Review recent file access logs"],
   },
   {
-    id: "alt_556", agent_id: "agt_789", agent_name: "Finance Assistant",
-    severity: "medium", prediction: "Suspicious", confidence: 0.72, risk_score: 54,
-    status: "ACKNOWLEDGED", detected_at: "2026-07-24T14:10:00Z",
+    id: "pred_556", observation_id: "obs_001",
+    verdict: "SUSPICIOUS", confidence: 0.72, risk_score: 54,
+    summary: "Tool usage pattern deviated from this agent's established baseline.",
+    model_version: "sentinelx-v3.2", analyzed_at: "2026-07-24T14:09:40Z",
     reasons: ["Unusual tool usage detected"],
     evidence: [{ sequence: 1, evidence_type: "Threat Match", reference: "AML.T0031", confidence: 0.61 }],
-    related_cves: [], recommended_actions: ["Confirm with the agent owner this was expected"],
+  },
+];
+
+// Alerts — matches AlertSummaryResource (list) / AlertDetailResource
+// (single) exactly. No agent_name/risk_score/confidence live on the Alert
+// itself; those come from the related Prediction, embedded only on the
+// detail endpoint.
+let alerts = [
+  {
+    id: "alt_555", prediction_id: "pred_555", severity: "CRITICAL", status: "OPEN",
+    acknowledged_at: null, acknowledged_by: null, resolved_at: null, resolved_by: null,
+    created_at: "2026-07-25T09:50:05Z", updated_at: "2026-07-25T09:50:05Z",
+  },
+  {
+    id: "alt_556", prediction_id: "pred_556", severity: "MEDIUM", status: "ACKNOWLEDGED",
+    acknowledged_at: "2026-07-24T15:00:00Z", acknowledged_by: "usr_123", resolved_at: null, resolved_by: null,
+    created_at: "2026-07-24T14:10:00Z", updated_at: "2026-07-24T15:00:00Z",
   },
 ];
 
@@ -100,26 +149,49 @@ export const topThreats = [
   { name: "Policy Violation", n: 1, sev: "low" },
 ];
 
+// Organization mock backing store — GET/PATCH /v1/organization only expose
+// id/name/slug/status/created_at/updated_at (see lib/api/organization.js);
+// no plan/usage-limit fields exist on the real OrganizationResource.
 export const companyInfo = {
-  id: "cmp_456", name: "FutureBank", plan: "free_trial",
-  observations_this_month: 12500, observations_limit: 50000,
-  agents_count: 5, agents_limit: 20,
+  id: "org_456", name: "FutureBank",
 };
 
-// --- Organization & Identity Lifecycle (per Session 8) --------------------
+// --- Audit / Security Logs -------------------------------------------
 //
-// Two SEPARATE concepts, matching the doc precisely:
-//   - "Members"     -> real accounts with an active Membership in the Org.
-//                      The first member is always created as "owner" at
-//                      Organization creation time (never chosen).
-//   - "Invitations" -> a trust object that exists BEFORE any account is
-//                      created. Lifecycle: pending -> accepted | expired | cancelled.
-//                      A User/Membership is only created at Accept time —
-//                      never at invite time.
+// Matches AuditLogResource exactly: id, actor_type, actor_id, action,
+// resource_type, resource_id, metadata, created_at. `actor_id` is null for
+// SYSTEM-actor entries, never fabricated. Write-once from the API's point
+// of view — no update/delete accessor exists here, matching AuditRepository
+// deliberately not having one either.
+
+const SECURITY_ACTIONS = [
+  "user.registered", "user.logged_in", "user.logged_out", "user.password_changed",
+  "api_key.generated", "api_key.rotated", "api_key.revoked",
+];
+
+let auditLogs = [
+  { id: "aud_010", actor_type: "USER", actor_id: "usr_123", action: "alert.acknowledged", resource_type: "Alert", resource_id: "alt_556", metadata: {}, created_at: "2026-07-24T15:00:00Z" },
+  { id: "aud_009", actor_type: "SYSTEM", actor_id: null, action: "alert.created", resource_type: "Alert", resource_id: "alt_555", metadata: { severity: "CRITICAL" }, created_at: "2026-07-25T09:50:05Z" },
+  { id: "aud_008", actor_type: "USER", actor_id: "usr_123", action: "api_key.rotated", resource_type: "ApiKey", resource_id: "key_002", metadata: { agent_id: "agt_790" }, created_at: "2026-07-20T11:05:00Z" },
+  { id: "aud_007", actor_type: "USER", actor_id: "usr_123", action: "agent.archived", resource_type: "Agent", resource_id: "agt_792", metadata: {}, created_at: "2026-06-01T00:00:00Z" },
+  { id: "aud_006", actor_type: "USER", actor_id: "usr_456", action: "agent.updated", resource_type: "Agent", resource_id: "agt_791", metadata: {}, created_at: "2026-06-15T10:00:00Z" },
+  { id: "aud_005", actor_type: "USER", actor_id: "usr_123", action: "agent.created", resource_type: "Agent", resource_id: "agt_791", metadata: { agent_name: "Sales Agent" }, created_at: "2026-06-10T09:00:00Z" },
+  { id: "aud_004", actor_type: "USER", actor_id: "usr_123", action: "api_key.generated", resource_type: "ApiKey", resource_id: "key_001", metadata: { agent_id: "agt_789" }, created_at: "2026-06-01T09:05:00Z" },
+  { id: "aud_003", actor_type: "USER", actor_id: "usr_123", action: "user.logged_in", resource_type: "User", resource_id: "usr_123", metadata: {}, created_at: "2026-06-01T09:01:00Z" },
+  { id: "aud_002", actor_type: "USER", actor_id: "usr_123", action: "user.registered", resource_type: "User", resource_id: "usr_123", metadata: {}, created_at: "2026-06-01T09:00:00Z" },
+  { id: "aud_001", actor_type: "SYSTEM", actor_id: null, action: "organization.created", resource_type: "Organization", resource_id: "org_456", metadata: {}, created_at: "2026-06-01T09:00:00Z" },
+];
+
+// --- Organization & Identity Lifecycle (Team) --------------------------
 //
-// Rule enforced here (mock-side, mirroring what the Backend must enforce):
-// an Organization must always have at least one "owner" member. Removing
-// the last owner, or demoting the last owner, is rejected.
+// NOT part of the provided endpoint contract for this pass (no
+// AUTHENTICATION_API/TEAM_API doc confirmed invitations or member
+// management routes) — left exactly as in the prior integration attempt,
+// unverified against a real Backend. Role/status values here are
+// deliberately kept lowercase as before, distinct from the confirmed
+// uppercase User.role enum ("OWNER"/"ADMIN"/"MEMBER") used everywhere else
+// now that GET /auth/me is integrated — this mismatch is a known gap, see
+// the integration report.
 
 let members = [
   { id: "usr_123", name: "Ahmed", email: "ahmed@futurebank.com", role: "owner", status: "active" },
@@ -170,104 +242,290 @@ function sortBy(list, sort) {
   });
 }
 
+function findPrediction(predictionId) {
+  return predictions.find((p) => p.id === predictionId) || null;
+}
+
+function findPredictionByObservation(observationId) {
+  return predictions.find((p) => p.observation_id === observationId) || null;
+}
+
+function findObservation(observationId) {
+  return observations.find((o) => o.id === observationId) || null;
+}
+
+function toObservationSummary(o) {
+  return { id: o.id, agent_id: o.agent_id, analysis_status: o.analysis_status, received_at: o.received_at, created_at: o.created_at };
+}
+
+// ObservationResource's embedded `prediction` uses PredictionSummaryResource
+// — deliberately excludes `evidence` (only Alert's embed includes it) and
+// stays null for every analysis_status other than COMPLETED.
+function toObservationDetail(o) {
+  const prediction = o.analysis_status === "COMPLETED" ? findPredictionByObservation(o.id) : null;
+  return {
+    id: o.id,
+    agent_id: o.agent_id,
+    organization_id: o.organization_id,
+    analysis_status: o.analysis_status,
+    raw_ases_json: o.raw_ases_json,
+    received_at: o.received_at,
+    processing_started_at: o.processing_started_at,
+    processed_at: o.processed_at,
+    created_at: o.created_at,
+    updated_at: o.updated_at,
+    prediction: prediction
+      ? {
+          id: prediction.id,
+          verdict: prediction.verdict,
+          confidence: prediction.confidence,
+          risk_score: prediction.risk_score,
+          summary: prediction.summary,
+          model_version: prediction.model_version,
+          analyzed_at: prediction.analyzed_at,
+          reasons: prediction.reasons,
+        }
+      : null,
+  };
+}
+
+function toAlertSummary(alert) {
+  const prediction = findPrediction(alert.prediction_id);
+  return {
+    id: alert.id,
+    prediction_id: alert.prediction_id,
+    severity: alert.severity,
+    status: alert.status,
+    created_at: alert.created_at,
+    reasons: prediction?.reasons || [],
+  };
+}
+
+function toAlertDetail(alert) {
+  const prediction = findPrediction(alert.prediction_id);
+  const observation = prediction ? findObservation(prediction.observation_id) : null;
+  return {
+    id: alert.id,
+    severity: alert.severity,
+    status: alert.status,
+    acknowledged_at: alert.acknowledged_at,
+    acknowledged_by: alert.acknowledged_by,
+    resolved_at: alert.resolved_at,
+    resolved_by: alert.resolved_by,
+    created_at: alert.created_at,
+    updated_at: alert.updated_at,
+    prediction: prediction
+      ? {
+          id: prediction.id,
+          verdict: prediction.verdict,
+          confidence: prediction.confidence,
+          risk_score: prediction.risk_score,
+          summary: prediction.summary,
+          model_version: prediction.model_version,
+          analyzed_at: prediction.analyzed_at,
+          reasons: prediction.reasons,
+          evidence: prediction.evidence,
+        }
+      : null,
+    observation: observation
+      ? { id: observation.id, agent_id: observation.agent_id, received_at: observation.created_at }
+      : null,
+  };
+}
+
 // --- accessors used by src/lib/api/*.js mock implementations -------------
 
 export const db = {
-  // Agents
+  // Agents — GET /v1/agents supports only `status` filtering + pagination
+  // per the contract (no `search`/`framework` query params, no `sort`; the
+  // Backend always orders by created_at ascending).
   getAgents: (filters = {}) => {
     let list = [...agents];
-    if (filters.status) list = list.filter((a) => a.status === filters.status);
-    if (filters.framework) list = list.filter((a) => a.framework === filters.framework);
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      list = list.filter((a) => a.name.toLowerCase().includes(q));
-    }
-    list = sortBy(list, filters.sort || "-last_activity_at");
+    if (filters.status) list = list.filter((a) => a.status === String(filters.status).toUpperCase());
+    list = sortBy(list, "created_at");
     return paginate(list, filters);
   },
   getAgent: (id) => agents.find((a) => a.id === id) || null,
   createAgent: (payload) => {
+    const now = new Date().toISOString();
     const agent = {
       id: `agt_${Math.random().toString(36).slice(2, 8)}`,
-      status: "ACTIVE", risk_level: "low", last_activity_at: new Date().toISOString(),
-      total_observations: 0, total_alerts: 0,
-      api_key: `ases_live_${Math.random().toString(36).slice(2, 14)}`,
-      ...payload,
+      name: payload.name,
+      framework: payload.framework,
+      framework_version: payload.framework_version ?? null,
+      description: payload.description ?? null,
+      status: "ACTIVE",
+      last_seen_at: null,
+      created_at: now,
+      updated_at: now,
     };
     agents = [agent, ...agents];
     return agent;
   },
   updateAgent: (id, payload) => {
-    agents = agents.map((a) => (a.id === id ? { ...a, ...payload } : a));
+    const { name, framework, framework_version, description } = payload;
+    const patch = { updated_at: new Date().toISOString() };
+    if (name !== undefined) patch.name = name;
+    if (framework !== undefined) patch.framework = framework;
+    if (framework_version !== undefined) patch.framework_version = framework_version;
+    if (description !== undefined) patch.description = description;
+    agents = agents.map((a) => (a.id === id ? { ...a, ...patch } : a));
     return db.getAgent(id);
   },
   // One-way — Agent archival has no reverse transition on the real Backend
-  // (AgentPolicy), so the mock does not offer one either. See CONTRACT-008.
-  archiveAgent: (id) => db.updateAgent(id, { status: "ARCHIVED", archived_at: new Date().toISOString() }),
+  // (AgentPolicy), so the mock does not offer one either. Response is the
+  // partial shape the real endpoint returns: { id, status, updated_at }.
+  archiveAgent: (id) => {
+    const now = new Date().toISOString();
+    agents = agents.map((a) => (a.id === id ? { ...a, status: "ARCHIVED", updated_at: now } : a));
+    const agent = db.getAgent(id);
+    return { id: agent.id, status: agent.status, updated_at: agent.updated_at };
+  },
+  // Response shape matches the real rotate-api-key endpoint:
+  // { key_prefix, raw_key, status, created_at }. The Agent resource itself
+  // never carries a key field, so nothing is written back onto `agents`.
   rotateApiKey: (id) => {
-    const api_key = `ases_live_${Math.random().toString(36).slice(2, 14)}`;
-    db.updateAgent(id, { api_key });
-    return { id, api_key, rotated_at: new Date().toISOString() };
-  },
-
-  // Observations
-  getObservations: (filters = {}) => {
-    let list = [...observations];
-    if (filters.agent_id) list = list.filter((o) => o.agent_id === filters.agent_id);
-    if (filters.verdict) list = list.filter((o) => o.verdict.toLowerCase() === filters.verdict.toLowerCase());
-    list = sortBy(list, filters.sort || "-created_at");
-    return paginate(list, filters);
-  },
-  getObservation: (id) => observations.find((o) => o.id === id) || null,
-
-  // Alerts
-  getAlerts: (filters = {}) => {
-    let list = [...alerts];
-    if (filters.status) list = list.filter((a) => a.status === filters.status);
-    if (filters.severity) list = list.filter((a) => a.severity === filters.severity);
-    if (filters.agent_id) list = list.filter((a) => a.agent_id === filters.agent_id);
-    list = sortBy(list, filters.sort || "-detected_at");
-    return paginate(list, filters);
-  },
-  getAlert: (id) => alerts.find((a) => a.id === id) || null,
-  updateAlertStatus: (id, status) => {
-    const extra = status === "ACKNOWLEDGED"
-      ? { acknowledged_by: "usr_123", acknowledged_at: new Date().toISOString() }
-      : status === "RESOLVED"
-      ? { resolved_by: "usr_123", resolved_at: new Date().toISOString() }
-      : {};
-    alerts = alerts.map((a) => (a.id === id ? { ...a, status, ...extra } : a));
-    return db.getAlert(id);
-  },
-
-  // Dashboard (aggregate)
-  getDashboard: () => {
-    const openAlerts = alerts.filter((a) => a.status === "OPEN").length;
-    const activeAgents = agents.filter((a) => a.status === "ACTIVE").length;
+    const secret = Math.random().toString(36).slice(2, 14);
     return {
-      stats: {
-        total_agents: agents.length,
-        active_agents: activeAgents,
-        total_observations_today: 18400,
-        open_alerts: openAlerts,
-      },
-      recent_alerts: alerts.slice(0, 5),
-      recent_observations: observations.slice(0, 5),
-      risk_distribution: { benign: 320, suspicious: 15, malicious: 5 },
+      key_prefix: `sk_live_${secret.slice(0, 4)}`,
+      raw_key: `sk_live_${secret}`,
+      status: "ACTIVE",
+      created_at: new Date().toISOString(),
     };
   },
 
-  // --- Organization & Identity Lifecycle -----------------------------
+  // Observations — GET /v1/observations supports agent_id/analysis_status
+  // filtering + pagination, ordered by received_at descending.
+  getObservations: (filters = {}) => {
+    let list = [...observations];
+    if (filters.agent_id) list = list.filter((o) => o.agent_id === filters.agent_id);
+    if (filters.analysis_status) list = list.filter((o) => o.analysis_status === String(filters.analysis_status).toUpperCase());
+    list = sortBy(list, "-received_at");
+    const { data, pagination } = paginate(list, filters);
+    return { data: data.map(toObservationSummary), pagination };
+  },
+  getObservation: (id) => {
+    const obs = observations.find((o) => o.id === id);
+    return obs ? toObservationDetail(obs) : null;
+  },
+
+  // Alerts — GET /v1/alerts supports `status`/`severity` filtering + pagination.
+  getAlerts: (filters = {}) => {
+    let list = [...alerts];
+    if (filters.status) list = list.filter((a) => a.status === String(filters.status).toUpperCase());
+    if (filters.severity) list = list.filter((a) => a.severity === String(filters.severity).toUpperCase());
+    list = sortBy(list, "-created_at");
+    const { data, pagination } = paginate(list, filters);
+    return { data: data.map(toAlertSummary), pagination };
+  },
+  getAlert: (id) => {
+    const alert = alerts.find((a) => a.id === id);
+    return alert ? toAlertDetail(alert) : null;
+  },
+  acknowledgeAlert: (id, userId = "usr_123") => {
+    const alert = alerts.find((a) => a.id === id);
+    if (!alert) throw new Error("Alert not found.");
+    if (alert.status !== "OPEN") throw new Error("This Alert has already been acknowledged or resolved.");
+    const now = new Date().toISOString();
+    alerts = alerts.map((a) =>
+      a.id === id ? { ...a, status: "ACKNOWLEDGED", acknowledged_at: now, acknowledged_by: userId, updated_at: now } : a
+    );
+    const updated = alerts.find((a) => a.id === id);
+    return { id: updated.id, status: updated.status, acknowledged_at: updated.acknowledged_at, acknowledged_by: updated.acknowledged_by };
+  },
+  resolveAlert: (id, userId = "usr_123") => {
+    const alert = alerts.find((a) => a.id === id);
+    if (!alert) throw new Error("Alert not found.");
+    if (alert.status === "RESOLVED") throw new Error("This Alert has already been resolved.");
+    const now = new Date().toISOString();
+    alerts = alerts.map((a) =>
+      a.id === id ? { ...a, status: "RESOLVED", resolved_at: now, resolved_by: userId, updated_at: now } : a
+    );
+    const updated = alerts.find((a) => a.id === id);
+    return { id: updated.id, status: updated.status, resolved_at: updated.resolved_at, resolved_by: updated.resolved_by };
+  },
+
+  // Dashboard (aggregate) — matches DashboardResource exactly:
+  // organization_stats { total_agents, active_agents,
+  // total_observations_last_30_days, open_alerts }, active_agents[],
+  // recent_observations[], recent_alerts[], risk_summary (by Prediction
+  // verdict, not Alert severity — per ADR-002, covers every analyzed
+  // Observation, SAFE included).
+  getDashboard: () => {
+    const RECENT_ITEMS_LIMIT = 5;
+    const openAlerts = alerts.filter((a) => a.status === "OPEN").length;
+    const activeAgentsList = agents.filter((a) => a.status === "ACTIVE");
+
+    const recentActiveAgents = [...activeAgentsList]
+      .sort((a, b) => (a.created_at > b.created_at ? -1 : 1))
+      .slice(0, RECENT_ITEMS_LIMIT)
+      .map((a) => ({ id: a.id, name: a.name, status: a.status, last_seen_at: a.last_seen_at }));
+
+    const recentObservations = [...observations]
+      .sort((a, b) => (a.received_at > b.received_at ? -1 : 1))
+      .slice(0, RECENT_ITEMS_LIMIT)
+      .map((o) => ({ id: o.id, agent_id: o.agent_id, analysis_status: o.analysis_status, received_at: o.received_at }));
+
+    const recentAlerts = [...alerts]
+      .sort((a, b) => (a.created_at > b.created_at ? -1 : 1))
+      .slice(0, RECENT_ITEMS_LIMIT)
+      .map(toAlertSummary);
+
+    const riskSummary = { SAFE: 0, SUSPICIOUS: 0, MALICIOUS: 0 };
+    observations
+      .filter((o) => o.analysis_status === "COMPLETED")
+      .forEach((o) => {
+        const prediction = findPredictionByObservation(o.id);
+        if (prediction && riskSummary[prediction.verdict] !== undefined) riskSummary[prediction.verdict] += 1;
+      });
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    return {
+      organization_stats: {
+        total_agents: agents.length,
+        active_agents: activeAgentsList.length,
+        total_observations_last_30_days: observations.filter((o) => o.received_at >= thirtyDaysAgo).length,
+        open_alerts: openAlerts,
+      },
+      active_agents: recentActiveAgents,
+      recent_observations: recentObservations,
+      recent_alerts: recentAlerts,
+      risk_summary: riskSummary,
+    };
+  },
+
+  // --- Audit / Security Logs -------------------------------------------
+
+  getAuditLogs: (filters = {}) => {
+    let list = [...auditLogs];
+    if (filters.actor_id) list = list.filter((e) => e.actor_id === filters.actor_id);
+    if (filters.action) list = list.filter((e) => e.action === filters.action);
+    if (filters.resource_type) list = list.filter((e) => e.resource_type === filters.resource_type);
+    if (filters.from) list = list.filter((e) => e.created_at >= filters.from);
+    if (filters.to) list = list.filter((e) => e.created_at <= filters.to);
+    list = sortBy(list, "-created_at");
+    return paginate(list, filters);
+  },
+  getAuditLog: (id) => auditLogs.find((e) => e.id === id) || null,
+  getSecurityLogs: (filters = {}) => {
+    let actionIn = SECURITY_ACTIONS;
+    if (filters.action) actionIn = SECURITY_ACTIONS.includes(filters.action) ? [filters.action] : [];
+    let list = auditLogs.filter((e) => actionIn.includes(e.action));
+    if (filters.actor_id) list = list.filter((e) => e.actor_id === filters.actor_id);
+    if (filters.resource_type) list = list.filter((e) => e.resource_type === filters.resource_type);
+    if (filters.from) list = list.filter((e) => e.created_at >= filters.from);
+    if (filters.to) list = list.filter((e) => e.created_at <= filters.to);
+    list = sortBy(list, "-created_at");
+    return paginate(list, filters);
+  },
+
+  // --- Organization & Identity Lifecycle (Team) — see file header note --
 
   getMembers: () => members.filter((m) => m.status !== "removed"),
 
   getInvitations: () => invitations,
 
-  /**
-   * Creates a PENDING invitation only — never a User/Membership directly.
-   * Per Session 8: "The Backend does not create a User at invite time. It
-   * creates an Invitation. The User is only created at Accept time."
-   */
   inviteMember: (email, role) => {
     const now = new Date().toISOString();
     const existingActiveMember = members.find((m) => m.email.toLowerCase() === email.toLowerCase() && m.status === "active");
@@ -292,7 +550,6 @@ export const db = {
     return invitation;
   },
 
-  /** Refreshes invited_at/expires_at without changing the invitation's identity. */
   resendInvitation: (id) => {
     const now = new Date().toISOString();
     invitations = invitations.map((i) =>
@@ -301,16 +558,11 @@ export const db = {
     return invitations.find((i) => i.id === id) || null;
   },
 
-  /** Owner changed their mind before the invite was accepted. */
   cancelInvitation: (id) => {
     invitations = invitations.map((i) => (i.id === id ? { ...i, status: "cancelled" } : i));
     return invitations.find((i) => i.id === id) || null;
   },
 
-  /**
-   * Simulates the invited person clicking "Accept Invitation": this is the
-   * ONLY point where a real Member/User is created, per Session 8.
-   */
   acceptInvitation: (id, name) => {
     const invitation = invitations.find((i) => i.id === id);
     if (!invitation || invitation.status !== "pending") {
@@ -328,12 +580,6 @@ export const db = {
     return member;
   },
 
-  /**
-   * Removing a member never hard-deletes their account (per Session 8) —
-   * in this single-organization MVP model that distinction doesn't show up
-   * in the UI yet, but the "at least one owner" rule IS enforced here,
-   * matching: "an Organization must always have an Owner."
-   */
   removeMember: (id) => {
     const member = members.find((m) => m.id === id);
     if (!member) return;
@@ -343,11 +589,6 @@ export const db = {
     members = members.map((m) => (m.id === id ? { ...m, status: "removed" } : m));
   },
 
-  /**
-   * Role changes are read from the database on every request (Session 6 /
-   * Session 8), never cached in a token — this function is the single
-   * place that mutates the source of truth for a member's role.
-   */
   updateMemberRole: (id, role) => {
     const member = members.find((m) => m.id === id);
     if (!member) throw new Error("Member not found");
