@@ -9,6 +9,10 @@ export default function Sidebar({ open = false, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Audit/Security Logs are Owner/Admin only server-side (403 for Member) —
+  // hidden from Member's nav rather than letting them click into a 403.
+  const visibleNavItems = navItems.filter((item) => !item.roles || item.roles.includes(user?.role));
+
   async function handleLogout() {
     await logout();
     onClose?.();
@@ -48,7 +52,7 @@ export default function Sidebar({ open = false, onClose }) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3">
-          {navItems.filter((item) => item.path !== "/settings").map(({ path, label, icon: Icon }) => (
+          {visibleNavItems.filter((item) => item.path !== "/settings").map(({ path, label, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}
@@ -71,10 +75,10 @@ export default function Sidebar({ open = false, onClose }) {
           {user && (
             <div className="mb-2 flex items-center gap-2.5 rounded-lg px-3.5 py-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500/15 text-xs font-semibold text-indigo-300">
-                {user.name?.[0]?.toUpperCase() || "?"}
+                {user.full_name?.[0]?.toUpperCase() || "?"}
               </div>
               <div className="min-w-0">
-                <div className="truncate text-xs font-medium text-white/80">{user.name}</div>
+                <div className="truncate text-xs font-medium text-white/80">{user.full_name}</div>
                 <div className="truncate text-[10px] text-white/30">{user.email}</div>
               </div>
             </div>
