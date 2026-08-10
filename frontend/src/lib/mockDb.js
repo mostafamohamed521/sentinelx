@@ -142,13 +142,6 @@ let alerts = [
   },
 ];
 
-export const topThreats = [
-  { name: "Prompt Injection", n: 3, sev: "high" },
-  { name: "Data Exfiltration Attempt", n: 2, sev: "high" },
-  { name: "Unusual Tool Usage", n: 1, sev: "medium" },
-  { name: "Policy Violation", n: 1, sev: "low" },
-];
-
 // Organization mock backing store — GET/PATCH /v1/organization only expose
 // id/name/slug/status/created_at/updated_at (see lib/api/organization.js);
 // no plan/usage-limit fields exist on the real OrganizationResource.
