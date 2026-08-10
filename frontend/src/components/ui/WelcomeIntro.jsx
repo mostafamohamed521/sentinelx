@@ -127,7 +127,7 @@ export default function WelcomeIntro({ onDone }) {
           ))}
         </div>
         <p
-          className="mt-4 text-sm tracking-[0.2em] text-white/35 transition-all duration-700"
+          className="mt-4 text-sm tracking-[0.2em] text-white/50 transition-all duration-700"
           style={{ opacity: phase >= 4 ? 1 : 0, transform: phase >= 4 ? "translateY(0)" : "translateY(8px)" }}
         >
           AI SECURITY. REAL-TIME. EFFORTLESS.
@@ -199,7 +199,7 @@ export default function WelcomeIntro({ onDone }) {
       {!flying && (
         <button
           onClick={handleSkip}
-          className="absolute bottom-8 right-8 text-xs font-medium text-white/25 transition hover:text-white/60"
+          className="absolute bottom-8 right-8 text-xs font-medium text-white/40 transition hover:text-white/60"
         >
           Skip
         </button>
