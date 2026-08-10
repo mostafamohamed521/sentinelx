@@ -99,15 +99,15 @@ function ProfilePanel() {
         <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
           <User className="h-4 w-4 text-indigo-400" /> Your profile
         </div>
-        <label className="mb-1.5 block text-xs font-medium text-white/50">Full name</label>
+        <label className="mb-1.5 block text-xs font-medium text-white/65">Full name</label>
         <input
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full max-w-sm rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+          className="w-full max-w-sm rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
         />
-        <div className="mt-4 flex items-center gap-2 text-xs text-white/30">
-          Email: <span className="text-white/50">{user?.email}</span>
-          <span className="text-white/20">(not editable here)</span>
+        <div className="mt-4 flex items-center gap-2 text-xs text-white/45">
+          Email: <span className="text-white/65">{user?.email}</span>
+          <span className="text-white/35">(not editable here)</span>
         </div>
         <div className="mt-5">
           <SaveButton status={nameStatus} errorMessage={nameError} onClick={() => saveNameRaw(saveName)} />
@@ -130,33 +130,33 @@ function ProfilePanel() {
         )}
         <form onSubmit={handlePasswordSubmit} className="max-w-sm space-y-3.5">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Current password</label>
+            <label className="mb-1.5 block text-xs font-medium text-white/65">Current password</label>
             <input
               type="password"
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">New password</label>
+            <label className="mb-1.5 block text-xs font-medium text-white/65">New password</label>
             <input
               type="password"
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Confirm new password</label>
+            <label className="mb-1.5 block text-xs font-medium text-white/65">Confirm new password</label>
             <input
               type="password"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
             />
           </div>
           <button
@@ -193,7 +193,7 @@ function WorkspacePanel() {
   }
 
   if (loadError) return <div className="text-sm text-rose-300">{loadError}</div>;
-  if (!org) return <div className="text-sm text-white/30">Loading workspace...</div>;
+  if (!org) return <div className="text-sm text-white/45">Loading workspace...</div>;
 
   return (
     <div className="space-y-6">
@@ -201,15 +201,15 @@ function WorkspacePanel() {
         <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
           <Building2 className="h-4 w-4 text-indigo-400" /> Workspace details
         </div>
-        <label className="mb-1.5 block text-xs font-medium text-white/50">Organization name</label>
+        <label className="mb-1.5 block text-xs font-medium text-white/65">Organization name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={!canEdit}
-          className="w-full max-w-sm rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none disabled:opacity-50"
+          className="w-full max-w-sm rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none disabled:opacity-50"
         />
-        {!canEdit && <p className="mt-1.5 text-[11px] text-white/25">Only workspace Owners can rename the organization.</p>}
-        <div className="mt-4 flex items-center gap-2 text-xs text-white/30">
+        {!canEdit && <p className="mt-1.5 text-[11px] text-white/40">Only workspace Owners can rename the organization.</p>}
+        <div className="mt-4 flex items-center gap-2 text-xs text-white/45">
           Status: <Badge tone={org.status?.toLowerCase()}>{org.status?.toLowerCase()}</Badge>
         </div>
         {canEdit && (
@@ -233,7 +233,7 @@ function AlertPolicyPanel() {
         <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
           <ShieldAlert className="h-4 w-4 text-indigo-400" /> Alert threshold
         </div>
-        <label className="mb-2 block text-xs font-medium text-white/50">
+        <label className="mb-2 block text-xs font-medium text-white/65">
           Risk score threshold — alerts fire at or above this score
         </label>
         <div className="flex items-center gap-4">
@@ -247,13 +247,13 @@ function AlertPolicyPanel() {
           />
           <span className="w-10 shrink-0 text-right text-sm font-semibold text-white">{threshold}</span>
         </div>
-        <p className="mt-3 text-xs text-white/30">
+        <p className="mt-3 text-xs text-white/45">
           Lower values catch more behavior but increase noise. 70 is a reasonable starting point.
         </p>
       </GlassCard>
 
       <GlassCard className="p-6">
-        <label className="mb-2 block text-xs font-medium text-white/50">
+        <label className="mb-2 block text-xs font-medium text-white/65">
           Auto-resolve low-risk alerts after
         </label>
         <div className="flex items-center gap-3">
@@ -262,9 +262,9 @@ function AlertPolicyPanel() {
             min="1"
             value={autoResolveDays}
             onChange={(e) => setAutoResolveDays(Number(e.target.value))}
-            className="w-24 rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
+            className="w-24 rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
           />
-          <span className="text-sm text-white/40">days</span>
+          <span className="text-sm text-white/55">days</span>
         </div>
       </GlassCard>
 
@@ -299,7 +299,7 @@ function NotificationsPanel() {
           <label className="flex cursor-pointer items-center justify-between">
             <div>
               <div className="text-sm text-white/70">Email alerts</div>
-              <div className="text-xs text-white/30">Get emailed whenever a new alert is created</div>
+              <div className="text-xs text-white/45">Get emailed whenever a new alert is created</div>
             </div>
             <input
               type="checkbox"
@@ -311,7 +311,7 @@ function NotificationsPanel() {
           <label className="flex cursor-pointer items-center justify-between">
             <div>
               <div className="text-sm text-white/70">Critical alerts only</div>
-              <div className="text-xs text-white/30">Mute medium and low severity notifications</div>
+              <div className="text-xs text-white/45">Mute medium and low severity notifications</div>
             </div>
             <input
               type="checkbox"
@@ -324,7 +324,7 @@ function NotificationsPanel() {
       </GlassCard>
 
       <GlassCard className="p-6">
-        <label className="mb-1.5 block text-xs font-medium text-white/50">Slack webhook URL (optional)</label>
+        <label className="mb-1.5 block text-xs font-medium text-white/65">Slack webhook URL (optional)</label>
         <input
           value={slackUrl}
           onChange={(e) => {
@@ -332,7 +332,7 @@ function NotificationsPanel() {
             setSlackError(null);
           }}
           placeholder="https://hooks.slack.com/services/..."
-          className={`w-full rounded-lg border bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none ${
+          className={`w-full rounded-lg border bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:outline-none ${
             slackError ? "border-rose-500/50" : "border-white/[0.1] focus:border-indigo-400/50"
           }`}
         />
@@ -432,7 +432,7 @@ function TeamPanel() {
     }
   }
 
-  if (!members || !invitations) return <div className="text-sm text-white/30">Loading team...</div>;
+  if (!members || !invitations) return <div className="text-sm text-white/45">Loading team...</div>;
 
   const pendingInvitations = invitations.filter((i) => i.status === "pending");
 
@@ -446,8 +446,8 @@ function TeamPanel() {
         </div>
         <form onSubmit={handleInvite} className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <div className="flex-1">
-            <div className="flex items-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5">
-              <Mail className="h-4 w-4 text-white/30" />
+            <div className="flex items-center gap-2 rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5">
+              <Mail className="h-4 w-4 text-white/45" />
               <input
                 type="email"
                 value={inviteEmail}
@@ -456,7 +456,7 @@ function TeamPanel() {
                   setInviteError(null);
                 }}
                 placeholder="colleague@company.com"
-                className="w-full bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none"
+                className="w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
               />
             </div>
             {inviteError && (
@@ -493,7 +493,7 @@ function TeamPanel() {
       {pendingInvitations.length > 0 && (
         <GlassCard className="overflow-hidden">
           <div className="border-b border-white/[0.06] px-6 py-4 text-sm font-medium text-white">
-            Pending Invitations <span className="text-white/30">({pendingInvitations.length})</span>
+            Pending Invitations <span className="text-white/45">({pendingInvitations.length})</span>
           </div>
           <div className="divide-y divide-white/[0.05]">
             {pendingInvitations.map((inv) => (
@@ -504,7 +504,7 @@ function TeamPanel() {
                   </div>
                   <div>
                     <div className="text-sm text-white/80">{inv.email}</div>
-                    <div className="text-xs text-white/30">
+                    <div className="text-xs text-white/45">
                       Expires {new Date(inv.expires_at).toLocaleDateString()} · {inv.role.replace("_", " ")}
                     </div>
                   </div>
@@ -519,7 +519,7 @@ function TeamPanel() {
                   </button>
                   <button
                     onClick={() => handleCancelInvite(inv.id)}
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-white/30 transition hover:bg-rose-500/10 hover:text-rose-400"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-white/45 transition hover:bg-rose-500/10 hover:text-rose-400"
                     aria-label={`Cancel invitation for ${inv.email}`}
                   >
                     <XCircle className="h-3.5 w-3.5" />
@@ -534,7 +534,7 @@ function TeamPanel() {
       {/* Active members — real accounts with an active Membership */}
       <GlassCard className="overflow-hidden">
         <div className="border-b border-white/[0.06] px-6 py-4 text-sm font-medium text-white">
-          Members <span className="text-white/30">({members.length})</span>
+          Members <span className="text-white/45">({members.length})</span>
         </div>
         <div className="divide-y divide-white/[0.05]">
           {members.map((m) => (
@@ -545,9 +545,9 @@ function TeamPanel() {
                 </div>
                 <div>
                   <div className="text-sm text-white/80">
-                    {m.name} {m.id === user?.id && <span className="text-white/30">(you)</span>}
+                    {m.name} {m.id === user?.id && <span className="text-white/45">(you)</span>}
                   </div>
-                  <div className="text-xs text-white/30">{m.email}</div>
+                  <div className="text-xs text-white/45">{m.email}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -560,7 +560,7 @@ function TeamPanel() {
                 {m.role !== "owner" && (
                   <button
                     onClick={() => handleRemoveMember(m.id)}
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-white/30 transition hover:bg-rose-500/10 hover:text-rose-400"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-white/45 transition hover:bg-rose-500/10 hover:text-rose-400"
                     aria-label={`Remove ${m.name}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -591,7 +591,7 @@ export default function Settings() {
               className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3.5 py-2.5 text-left text-sm font-medium transition ${
                 activeTab === t.id
                   ? "bg-white/[0.07] text-white"
-                  : "text-white/45 hover:bg-white/[0.04] hover:text-white/80"
+                  : "text-white/60 hover:bg-white/[0.04] hover:text-white/80"
               }`}
             >
               <t.icon className="h-4 w-4" />
