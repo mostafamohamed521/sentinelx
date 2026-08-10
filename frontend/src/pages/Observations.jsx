@@ -86,9 +86,15 @@ export default function Observations() {
       {!error && observations && observations.length > 0 && (
         <Reveal>
           <GlassCard className="overflow-hidden">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4">
+              <span className="flex items-center gap-2 text-sm font-medium text-white">
+                <Activity className="h-4 w-4 text-indigo-400" /> All Observations
+              </span>
+              <span className="font-mono text-xs text-white/45">{observations.length} total</span>
+            </div>
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-xs text-white/35">
+                <tr className="border-b border-white/[0.06] text-xs text-white/50">
                   <th className="px-5 py-3.5 font-medium">Agent</th>
                   <th className="px-5 py-3.5 font-medium">Status</th>
                   <th className="px-5 py-3.5 font-medium">Received</th>
@@ -100,7 +106,7 @@ export default function Observations() {
                     at the list level; those only exist on the detail view,
                     nested under `prediction`, once analysis has completed. */}
                 {observations.map((o) => (
-                  <tr key={o.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.03]">
+                  <tr key={o.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.05]">
                     <td className="px-5 py-4">
                       <Link to={`/observations/${o.id}`} className="flex items-center gap-2.5 font-medium text-white">
                         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10">
@@ -112,7 +118,7 @@ export default function Observations() {
                     <td className="px-5 py-4">
                       <Badge tone={STATUS_TONE[o.analysis_status] || "neutral"}>{o.analysis_status?.toLowerCase()}</Badge>
                     </td>
-                    <td className="px-5 py-4 text-white/35">{new Date(o.received_at || o.created_at).toLocaleString()}</td>
+                    <td className="px-5 py-4 text-white/50">{new Date(o.received_at || o.created_at).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
