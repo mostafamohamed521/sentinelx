@@ -85,9 +85,15 @@ export default function Alerts() {
       {!error && alerts && alerts.length > 0 && (
         <Reveal>
           <GlassCard className="overflow-hidden">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4">
+              <span className="flex items-center gap-2 text-sm font-medium text-white">
+                <AlertTriangle className="h-4 w-4 text-indigo-400" /> All Alerts
+              </span>
+              <span className="font-mono text-xs text-white/45">{alerts.length} total</span>
+            </div>
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-xs text-white/35">
+                <tr className="border-b border-white/[0.06] text-xs text-white/50">
                   <th className="px-5 py-3.5 font-medium">Alert</th>
                   <th className="px-5 py-3.5 font-medium">Severity</th>
                   <th className="px-5 py-3.5 font-medium">Status</th>
@@ -102,7 +108,7 @@ export default function Alerts() {
                     view), so the primary label here is the first reason
                     rather than an agent name. */}
                 {alerts.map((a) => (
-                  <tr key={a.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.03]">
+                  <tr key={a.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.05]">
                     <td className="px-5 py-4">
                       <Link to={`/alerts/${a.id}`} className="flex items-center gap-2.5 font-medium text-white">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-500/10">
@@ -113,7 +119,7 @@ export default function Alerts() {
                     </td>
                     <td className="px-5 py-4"><Badge tone={a.severity?.toLowerCase()}>{a.severity?.toLowerCase()}</Badge></td>
                     <td className="px-5 py-4"><Badge tone={a.status?.toLowerCase()}>{a.status?.toLowerCase()}</Badge></td>
-                    <td className="px-5 py-4 text-white/35">{new Date(a.created_at).toLocaleString()}</td>
+                    <td className="px-5 py-4 font-mono text-xs text-white/50">{new Date(a.created_at).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
