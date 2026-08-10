@@ -47,7 +47,7 @@ export default function VerifyEmail() {
             <CheckCircle2 className="h-6 w-6 text-emerald-400" />
           </div>
           <h1 className="text-xl font-semibold text-white">Email verified</h1>
-          <p className="mt-2 text-sm text-white/40">{message}</p>
+          <p className="mt-2 text-sm text-white/55">{message}</p>
           <Link to="/login" className="mt-6 inline-block text-sm font-medium text-indigo-400 hover:text-indigo-300">
             Continue to sign in
           </Link>
@@ -60,7 +60,7 @@ export default function VerifyEmail() {
             <AlertCircle className="h-6 w-6 text-rose-400" />
           </div>
           <h1 className="text-xl font-semibold text-white">Verification failed</h1>
-          <p className="mt-2 text-sm text-white/40">{message}</p>
+          <p className="mt-2 text-sm text-white/55">{message}</p>
           <Link to="/login" className="mt-6 inline-block text-sm font-medium text-indigo-400 hover:text-indigo-300">
             Back to sign in
           </Link>

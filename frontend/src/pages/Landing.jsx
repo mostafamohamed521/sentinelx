@@ -76,7 +76,7 @@ function Hero() {
             <br />
             <span className="bg-gradient-to-r from-indigo-300 via-violet-300 to-indigo-200 bg-clip-text text-transparent">Someone should watch them.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/50 transition-all duration-700" style={{ opacity: step >= 2 ? 1 : 0, transform: step >= 2 ? "translateY(0)" : "translateY(14px)" }}>
+          <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/65 transition-all duration-700" style={{ opacity: step >= 2 ? 1 : 0, transform: step >= 2 ? "translateY(0)" : "translateY(14px)" }}>
             SentinelX watches every action your AI agents take — every API call, every file, every tool — and tells you the moment something looks wrong.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4 transition-all duration-700" style={{ opacity: step >= 3 ? 1 : 0, transform: step >= 3 ? "translateY(0)" : "translateY(14px)" }}>
@@ -88,7 +88,7 @@ function Hero() {
               Watch it detect a threat →
             </a>
           </div>
-          <div className="mt-14 flex flex-wrap items-center gap-x-10 gap-y-4 border-t border-white/[0.06] pt-8 text-xs text-white/35 transition-all duration-700" style={{ opacity: step >= 4 ? 1 : 0 }}>
+          <div className="mt-14 flex flex-wrap items-center gap-x-10 gap-y-4 border-t border-white/[0.06] pt-8 text-xs text-white/50 transition-all duration-700" style={{ opacity: step >= 4 ? 1 : 0 }}>
             <span className="tracking-wide">CONNECTS WITH</span>
             <span className="font-medium text-white/55">OpenAI Agents</span>
             <span className="font-medium text-white/55">LangChain</span>
@@ -102,7 +102,7 @@ function Hero() {
               <div className="flex items-center gap-2 text-sm font-medium text-white/80">
                 <Shield className="h-4 w-4 text-indigo-400" /> SentinelX — Live
               </div>
-              <div className="flex gap-3 text-[11px] text-white/35">
+              <div className="flex gap-3 text-[11px] text-white/50">
                 <span className="rounded-md bg-white/[0.06] px-2 py-1">Live</span>
                 <span className="px-2 py-1">Events</span>
                 <span className="px-2 py-1">Logs</span>
@@ -111,14 +111,14 @@ function Hero() {
             <div className="max-h-[340px] space-y-0.5 overflow-hidden p-3 font-mono text-[12px]">
               {liveEvents.map((e, i) => (
                 <div key={i} className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-all duration-500 hover:bg-white/[0.04]" style={{ animation: `fadeSlideIn 0.5s ease-out ${0.15 * i + 0.4}s both` }}>
-                  <span className="text-white/30">{e.t}</span>
+                  <span className="text-white/45">{e.t}</span>
                   <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${e.risk === "high" ? "bg-rose-400" : e.risk === "med" ? "bg-amber-400" : "bg-emerald-400"}`} />
                   <span className="w-28 shrink-0 text-white/70">{e.type}</span>
-                  <span className="truncate text-white/40">{e.detail}</span>
+                  <span className="truncate text-white/55">{e.detail}</span>
                 </div>
               ))}
             </div>
-            <div className="border-t border-white/[0.06] bg-white/[0.02] px-5 py-3 text-[11px] text-white/40">
+            <div className="border-t border-white/[0.1] bg-white/[0.04] px-5 py-3 text-[11px] text-white/55">
               All signals flow into one intelligent brain — behavior analysis, threat detection, risk scoring.
             </div>
           </GlassCard>
@@ -136,7 +136,7 @@ function Onboarding() {
           <Reveal><GlassCard className="flex h-full flex-col justify-center gap-4 p-8">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10"><Cpu className="h-5 w-5 text-indigo-400" /></div>
             <h3 className="text-xl font-semibold text-white">Create your workspace</h3>
-            <p className="text-sm leading-relaxed text-white/45">Start securing your agents in minutes — no infrastructure to manage.</p>
+            <p className="text-sm leading-relaxed text-white/60">Start securing your agents in minutes — no infrastructure to manage.</p>
           </GlassCard></Reveal>
           <Reveal delay={120}><GlassCard className="flex h-full flex-col justify-center gap-4 p-8">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10"><Network className="h-5 w-5 text-violet-400" /></div>
@@ -156,8 +156,8 @@ function Onboarding() {
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               {[{ icon: Terminal, label: "Requests" }, { icon: Activity, label: "Responses" }, { icon: Zap, label: "Events" }, { icon: FileText, label: "Tools" }, { icon: Database, label: "Files" }, { icon: Globe, label: "Network" }].map(({ icon: Icon, label }) => (
                 <div key={label} className="rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-3">
-                  <Icon className="mx-auto mb-1.5 h-4 w-4 text-white/50" />
-                  <div className="text-[10px] text-white/35">{label}</div>
+                  <Icon className="mx-auto mb-1.5 h-4 w-4 text-white/65" />
+                  <div className="text-[10px] text-white/50">{label}</div>
                 </div>
               ))}
             </div>
@@ -178,16 +178,16 @@ function RealtimeShowcase() {
           <Reveal>
             <p className="mb-3 text-sm font-medium text-indigo-400">Real-time</p>
             <h2 className="text-4xl font-semibold leading-tight tracking-tight text-white">Every request. Every decision. Every action.</h2>
-            <p className="mt-5 max-w-md text-white/50">All signals flow into one intelligent brain — behavior analysis, threat detection, risk scoring, anomaly detection.</p>
+            <p className="mt-5 max-w-md text-white/65">All signals flow into one intelligent brain — behavior analysis, threat detection, risk scoring, anomaly detection.</p>
           </Reveal>
           <Reveal delay={150}>
             <GlassCard className="p-5">
               <div className="mb-4 flex items-center justify-between text-sm font-medium text-white">
                 <span className="flex items-center gap-2"><Shield className="h-4 w-4 text-indigo-400" /> Overview</span>
-                <span className="text-[11px] font-normal text-white/30">Last 24h</span>
+                <span className="text-[11px] font-normal text-white/45">Last 24h</span>
               </div>
               <div className="text-3xl font-semibold text-white">{(req / 1000).toFixed(1)}K</div>
-              <div className="text-xs text-white/35">requests today</div>
+              <div className="text-xs text-white/50">requests today</div>
             </GlassCard>
           </Reveal>
         </div>
@@ -226,15 +226,15 @@ function FooterStrip() {
     <footer className="relative border-t border-white/[0.06] bg-[#07080f] py-14">
       <div className="relative mx-auto max-w-6xl px-6 text-center">
         <h3 className="text-2xl font-semibold text-white">
-          AI moves fast. <span className="text-white/40">You stay</span>{" "}
+          AI moves fast. <span className="text-white/55">You stay</span>{" "}
           <span className="bg-gradient-to-r from-indigo-300 to-violet-300 bg-clip-text text-transparent">in control.</span>
         </h3>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
           {items.map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-xs text-white/35"><Icon className="h-3.5 w-3.5" /> {label}</div>
+            <div key={label} className="flex items-center gap-2 text-xs text-white/50"><Icon className="h-3.5 w-3.5" /> {label}</div>
           ))}
         </div>
-        <div className="mt-10 flex items-center justify-center gap-2 text-sm text-white/30">
+        <div className="mt-10 flex items-center justify-center gap-2 text-sm text-white/45">
           <Logo size={18} glow={false} /> SentinelX © 2026
         </div>
       </div>

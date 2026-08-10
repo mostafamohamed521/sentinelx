@@ -10,7 +10,7 @@ export default function Breadcrumb() {
   if (!route) return null;
 
   return (
-    <nav className="mb-2 flex items-center gap-1.5 text-xs text-white/35">
+    <nav className="mb-2 flex items-center gap-1.5 text-xs text-white/50">
       {parent && (
         <>
           <Link to={parent.path} className="transition hover:text-white/60">

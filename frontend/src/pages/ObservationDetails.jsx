@@ -7,7 +7,7 @@ import Reveal from "../components/ui/Reveal.jsx";
 import { PageLoader, PageError } from "../components/ui/PageState.jsx";
 import { getObservation } from "../lib/api/observations.js";
 import { getAgent } from "../lib/api/agents.js";
-import { Activity } from "lucide-react";
+import { Activity, Clock, ShieldAlert } from "lucide-react";
 
 // Analysis is explicitly asynchronous on the Backend — an Observation can
 // sit at PENDING/PROCESSING for a real amount of time after this page's
@@ -94,14 +94,16 @@ export default function ObservationDetails() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Reveal className="lg:col-span-2">
           <GlassCard className="p-6">
-            <div className="mb-4 text-sm font-medium text-white">Event Timeline</div>
+            <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
+              <Clock className="h-4 w-4 text-indigo-400" /> Event Timeline
+            </div>
             <div className="space-y-2">
-              {events.length === 0 && <p className="text-sm text-white/30">No events recorded.</p>}
+              {events.length === 0 && <p className="text-sm text-white/45">No events recorded.</p>}
               {events.map((e, i) => (
-                <div key={i} className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 font-mono text-[12px]">
-                  <span className="text-white/30">{e.header?.timestamp ? new Date(e.header.timestamp).toLocaleTimeString() : "—"}</span>
+                <div key={i} className="flex items-center gap-3 rounded-lg border border-white/[0.1] bg-white/[0.04] px-3.5 py-3 font-mono text-[12px]">
+                  <span className="text-white/45">{e.header?.timestamp ? new Date(e.header.timestamp).toLocaleTimeString() : "—"}</span>
                   <span className="w-40 shrink-0 text-white/70">{e.header?.event_type}</span>
-                  <span className="truncate text-white/40">{eventLabel(e.payload)}</span>
+                  <span className="truncate text-white/55">{eventLabel(e.payload)}</span>
                 </div>
               ))}
             </div>
@@ -110,10 +112,12 @@ export default function ObservationDetails() {
 
         <Reveal delay={100}>
           <GlassCard className="p-6">
-            <div className="mb-4 text-sm font-medium text-white">Prediction</div>
+            <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
+              <ShieldAlert className="h-4 w-4 text-indigo-400" /> Prediction
+            </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Status</span>
+                <span className="text-white/55">Status</span>
                 <Badge
                   tone={
                     obs.analysis_status === "COMPLETED" ? "active"
@@ -128,23 +132,23 @@ export default function ObservationDetails() {
               {prediction ? (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Verdict</span>
+                    <span className="text-white/55">Verdict</span>
                     <Badge tone={prediction.verdict === "SAFE" ? "low" : prediction.verdict === "SUSPICIOUS" ? "medium" : "high"}>{prediction.verdict}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Confidence</span>
+                    <span className="text-white/55">Confidence</span>
                     <span className="text-white">{Math.round(prediction.confidence * 100)}%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Risk Score</span>
+                    <span className="text-white/55">Risk Score</span>
                     <span className="text-white">{prediction.risk_score}</span>
                   </div>
                   {prediction.summary && (
-                    <p className="border-t border-white/[0.06] pt-3 text-xs leading-relaxed text-white/50">{prediction.summary}</p>
+                    <p className="border-t border-white/[0.06] pt-3 text-xs leading-relaxed text-white/65">{prediction.summary}</p>
                   )}
                 </>
               ) : (
-                <p className="text-xs text-white/30">
+                <p className="text-xs text-white/45">
                   {obs.analysis_status === "FAILED"
                     ? "Analysis failed for this observation — no prediction was produced."
                     : "Analysis hasn't completed yet."}
@@ -153,8 +157,8 @@ export default function ObservationDetails() {
 
               {context && (
                 <div className="border-t border-white/[0.06] pt-3">
-                  <div className="text-white/40">Context</div>
-                  <div className="mt-2 space-y-1 text-xs text-white/50">
+                  <div className="text-white/55">Context</div>
+                  <div className="mt-2 space-y-1 text-xs text-white/65">
                     <div>Framework: {context.framework}</div>
                     {context.execution_start_time && <div>Started: {new Date(context.execution_start_time).toLocaleString()}</div>}
                     {context.execution_finish_time && <div>Finished: {new Date(context.execution_finish_time).toLocaleString()}</div>}

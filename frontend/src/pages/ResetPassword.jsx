@@ -41,7 +41,7 @@ export default function ResetPassword() {
           <CheckCircle2 className="h-6 w-6 text-emerald-400" />
         </div>
         <h1 className="text-xl font-semibold text-white">Password updated</h1>
-        <p className="mt-2 text-sm text-white/40">Redirecting you to sign in...</p>
+        <p className="mt-2 text-sm text-white/55">Redirecting you to sign in...</p>
       </GlassCard>
     );
   }
@@ -49,7 +49,7 @@ export default function ResetPassword() {
   return (
     <GlassCard className="p-8">
       <h1 className="text-xl font-semibold text-white">Set a new password</h1>
-      <p className="mt-1.5 text-sm text-white/40">Choose something you haven't used before.</p>
+      <p className="mt-1.5 text-sm text-white/55">Choose something you haven't used before.</p>
 
       {formError && (
         <div className="mt-5 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-3.5 py-2.5 text-xs text-rose-300">
@@ -60,31 +60,31 @@ export default function ResetPassword() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-white/50">New password</label>
-          <div className="flex items-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 focus-within:border-indigo-400/50">
-            <Lock className="h-4 w-4 text-white/30" />
+          <label className="mb-1.5 block text-xs font-medium text-white/65">New password</label>
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 focus-within:border-indigo-400/50">
+            <Lock className="h-4 w-4 text-white/45" />
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
-              className="w-full bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none"
+              className="w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
             />
           </div>
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-white/50">Confirm password</label>
-          <div className="flex items-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 focus-within:border-indigo-400/50">
-            <Lock className="h-4 w-4 text-white/30" />
+          <label className="mb-1.5 block text-xs font-medium text-white/65">Confirm password</label>
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 focus-within:border-indigo-400/50">
+            <Lock className="h-4 w-4 text-white/45" />
             <input
               type="password"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repeat password"
-              className="w-full bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none"
+              className="w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
             />
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function ResetPassword() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-white/30">
+      <p className="mt-6 text-center text-xs text-white/45">
         <Link to="/login" className="font-medium text-indigo-400 hover:text-indigo-300">
           Back to sign in
         </Link>

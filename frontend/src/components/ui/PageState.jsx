@@ -8,7 +8,7 @@ export function PageLoader() {
       <div className="animate-pulse">
         <Logo size={36} />
       </div>
-      <span className="text-xs text-white/30">Loading...</span>
+      <span className="text-xs text-white/45">Loading...</span>
     </div>
   );
 }
@@ -35,8 +35,8 @@ export function PageError({ message, onRetry }) {
 export function EmptyState({ icon: Icon, message }) {
   return (
     <div className="flex min-h-[30vh] flex-col items-center justify-center gap-2 text-center">
-      {Icon && <Icon className="h-6 w-6 text-white/20" />}
-      <div className="text-sm text-white/30">{message}</div>
+      {Icon && <Icon className="h-6 w-6 text-white/35" />}
+      <div className="text-sm text-white/45">{message}</div>
     </div>
   );
 }

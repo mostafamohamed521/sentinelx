@@ -44,7 +44,7 @@ export default function Sidebar({ open = false, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-white/40 transition hover:bg-white/[0.06] hover:text-white lg:hidden"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-white/55 transition hover:bg-white/[0.06] hover:text-white lg:hidden"
             aria-label="Close navigation"
           >
             <CloseIcon className="h-4 w-4" />
@@ -61,7 +61,7 @@ export default function Sidebar({ open = false, onClose }) {
                 `flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium transition ${
                   isActive
                     ? "bg-white/[0.07] text-white"
-                    : "text-white/45 hover:bg-white/[0.04] hover:text-white/80"
+                    : "text-white/60 hover:bg-white/[0.04] hover:text-white/80"
                 }`
               }
             >
@@ -79,20 +79,20 @@ export default function Sidebar({ open = false, onClose }) {
               </div>
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium text-white/80">{user.full_name}</div>
-                <div className="truncate text-[10px] text-white/30">{user.email}</div>
+                <div className="truncate text-[10px] text-white/45">{user.email}</div>
               </div>
             </div>
           )}
           <NavLink
             to="/settings"
             onClick={onClose}
-            className="flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-white/45 transition hover:bg-white/[0.04] hover:text-white/80"
+            className="flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/[0.04] hover:text-white/80"
           >
             <Settings className="h-4 w-4" /> Settings
           </NavLink>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/45 transition hover:bg-white/[0.04] hover:text-white/80"
+            className="flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/60 transition hover:bg-white/[0.04] hover:text-white/80"
           >
             <LogOut className="h-4 w-4" /> Log out
           </button>

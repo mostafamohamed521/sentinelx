@@ -4,10 +4,19 @@ import Topbar from "../components/ui/Topbar.jsx";
 import GlassCard from "../components/ui/GlassCard.jsx";
 import Badge from "../components/ui/Badge.jsx";
 import Reveal from "../components/ui/Reveal.jsx";
+import Modal from "../components/ui/Modal.jsx";
 import { PageLoader, PageError } from "../components/ui/PageState.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getAgent, updateAgent, archiveAgent, rotateApiKey, listAgentObservations } from "../lib/api/agents.js";
-import { Bot, KeyRound, Archive, Copy, CheckCircle2, Pencil, X, AlertCircle } from "lucide-react";
+import { Bot, KeyRound, Archive, Copy, CheckCircle2, Pencil, AlertCircle, Loader2, Activity } from "lucide-react";
+
+const FRAMEWORK_PRESETS = ["CrewAI", "LangChain", "AutoGen", "Custom"];
+
+// Matches Modal's opaque panel contrast — see the identical constant in
+// pages/Agents.jsx (kept per-file rather than shared to avoid a cross-page
+// import for one style string).
+const FIELD_CLASS =
+  "w-full rounded-lg border border-white/[0.14] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white placeholder:text-white/45 transition focus:border-indigo-400/60 focus:bg-white/[0.07] focus:outline-none";
 
 function EditAgentModal({ agent, onClose, onSaved }) {
   const [name, setName] = useState(agent.name || "");
@@ -41,77 +50,90 @@ function EditAgentModal({ agent, onClose, onSaved }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <GlassCard className="w-full max-w-md p-6">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Edit agent</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white">
-            <X className="h-4 w-4" />
+    <Modal
+      icon={Pencil}
+      title="Edit agent"
+      subtitle={`Update ${agent.name}'s metadata.`}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-lg border border-white/[0.12] py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.06]"
+          >
+            Cancel
           </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-sm font-semibold text-[#07080f] shadow-[0_8px_24px_-8px_rgba(255,255,255,0.25)] transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving...
+              </>
+            ) : (
+              "Save changes"
+            )}
+          </button>
+        </>
+      }
+    >
+      {error && (
+        <div className="mb-5 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-3.5 py-2.5 text-xs text-rose-300">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
+        </div>
+      )}
+
+      <div className="space-y-5">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-white/65">Agent name</label>
+          <input required value={name} onChange={(e) => setName(e.target.value)} className={FIELD_CLASS} />
         </div>
 
-        {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.08] px-3.5 py-2.5 text-xs text-rose-300">
-            <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-white/65">Framework</label>
+          <div className="mb-2.5 flex flex-wrap gap-1.5">
+            {FRAMEWORK_PRESETS.map((f) => (
+              <button
+                type="button"
+                key={f}
+                onClick={() => setFramework(f)}
+                className={`rounded-full border px-3 py-1 text-[11px] font-medium transition ${
+                  framework === f
+                    ? "border-indigo-400/50 bg-indigo-500/15 text-indigo-300"
+                    : "border-white/[0.12] text-white/65 hover:border-white/25 hover:text-white/80"
+                }`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
-        )}
+          <input required value={framework} onChange={(e) => setFramework(e.target.value)} className={FIELD_CLASS} />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Name</label>
-            <input
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Framework</label>
-            <input
-              required
-              value={framework}
-              onChange={(e) => setFramework(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Framework version</label>
-            <input
-              value={frameworkVersion}
-              onChange={(e) => setFrameworkVersion(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/50">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full resize-none rounded-lg border border-white/[0.1] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white focus:border-indigo-400/50 focus:outline-none"
-            />
-          </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-white/65">Framework version</label>
+          <input
+            value={frameworkVersion}
+            onChange={(e) => setFrameworkVersion(e.target.value)}
+            className={`max-w-[10rem] ${FIELD_CLASS}`}
+          />
+        </div>
 
-          <div className="flex items-center gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-lg border border-white/[0.1] py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.05]"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 rounded-lg bg-white py-2.5 text-sm font-semibold text-[#07080f] transition hover:bg-white/90 disabled:opacity-60"
-            >
-              {submitting ? "Saving..." : "Save changes"}
-            </button>
-          </div>
-        </form>
-      </GlassCard>
-    </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-white/65">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className={`resize-none ${FIELD_CLASS}`}
+          />
+        </div>
+      </div>
+    </Modal>
   );
 }
 
@@ -256,22 +278,22 @@ export default function AgentDetails() {
 
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <GlassCard className="p-4">
-          <div className="text-[10px] text-white/35">Framework</div>
+          <div className="text-[10px] text-white/50">Framework</div>
           <div className="mt-1 text-sm font-semibold text-white">{agent.framework}</div>
         </GlassCard>
         <GlassCard className="p-4">
-          <div className="text-[10px] text-white/35">Version</div>
+          <div className="text-[10px] text-white/50">Version</div>
           <div className="mt-1 text-sm font-semibold text-white">{agent.framework_version || "—"}</div>
         </GlassCard>
         <GlassCard className="p-4">
-          <div className="text-[10px] text-white/35">Status</div>
+          <div className="text-[10px] text-white/50">Status</div>
           {/* Badge's style tokens are lowercase; the Backend's real status
               values are uppercase — normalized here at the display call site. */}
           <div className="mt-1"><Badge tone={agent.status?.toLowerCase()}>{agent.status?.toLowerCase()}</Badge></div>
         </GlassCard>
         <GlassCard className="p-4">
-          <div className="text-[10px] text-white/35">Last Seen</div>
-          <div className="mt-1 text-sm font-semibold text-white">
+          <div className="text-[10px] text-white/50">Last Seen</div>
+          <div className="mt-1 font-mono text-sm font-semibold text-white">
             {agent.last_seen_at ? new Date(agent.last_seen_at).toLocaleString() : "Never"}
           </div>
         </GlassCard>
@@ -279,19 +301,18 @@ export default function AgentDetails() {
 
       <Reveal>
         <GlassCard className="p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium text-white">Recent Observations</span>
-            <Bot className="h-4 w-4 text-white/30" />
+          <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
+            <Activity className="h-4 w-4 text-indigo-400" /> Recent Observations
           </div>
           <div className="space-y-2.5">
-            {observations.length === 0 && <p className="text-sm text-white/30">No observations yet.</p>}
+            {observations.length === 0 && <p className="text-sm text-white/45">No observations yet.</p>}
             {observations.map((o) => (
               <Link
                 key={o.id}
                 to={`/observations/${o.id}`}
-                className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3 text-sm transition hover:bg-white/[0.05]"
+                className="flex items-center justify-between rounded-lg border border-white/[0.1] bg-white/[0.04] px-3.5 py-3 text-sm transition hover:bg-white/[0.05]"
               >
-                <span className="text-white/60">{new Date(o.received_at || o.created_at).toLocaleString()}</span>
+                <span className="font-mono text-xs text-white/60">{new Date(o.received_at || o.created_at).toLocaleString()}</span>
                 {/* ObservationSummaryResource carries analysis_status only —
                     no verdict at the list level; the verdict only appears
                     once analysis has completed, on the detail endpoint. */}

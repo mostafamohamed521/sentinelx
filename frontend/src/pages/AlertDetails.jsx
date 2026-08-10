@@ -136,7 +136,7 @@ export default function AlertDetails() {
               <Badge tone={alert.severity?.toLowerCase()}>{alert.severity?.toLowerCase()}</Badge>
             </div>
 
-            <div className="flex gap-5 border-b border-white/[0.06] px-5 pt-4 text-xs text-white/35">
+            <div className="flex gap-5 border-b border-white/[0.06] px-5 pt-4 text-xs text-white/50">
               {["summary", "timeline", "evidence"].map((t) => (
                 <button
                   key={t}
@@ -153,7 +153,7 @@ export default function AlertDetails() {
                 <div className="space-y-4 text-sm">
                   {prediction ? (
                     <div>
-                      <div className="mb-2 text-white/40">Why this was flagged</div>
+                      <div className="mb-2 text-white/55">Why this was flagged</div>
                       <ul className="space-y-1.5">
                         {(prediction.reasons || []).map((r, i) => (
                           <li key={i} className="flex items-start gap-2 text-white/70">
@@ -163,7 +163,7 @@ export default function AlertDetails() {
                       </ul>
                     </div>
                   ) : (
-                    <p className="text-white/40">
+                    <p className="text-white/55">
                       The Prediction backing this Alert is no longer available.
                     </p>
                   )}
@@ -180,29 +180,29 @@ export default function AlertDetails() {
 
               {tab === "timeline" && (
                 <div className="space-y-2.5 text-sm">
-                  <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
+                  <div className="flex items-center justify-between rounded-lg border border-white/[0.1] bg-white/[0.04] px-3.5 py-3">
                     <span className="text-white/60">Created</span>
-                    <span className="text-white/40">{new Date(alert.created_at).toLocaleString()}</span>
+                    <span className="font-mono text-white/55">{new Date(alert.created_at).toLocaleString()}</span>
                   </div>
                   {prediction?.analyzed_at && (
-                    <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
+                    <div className="flex items-center justify-between rounded-lg border border-white/[0.1] bg-white/[0.04] px-3.5 py-3">
                       <span className="text-white/60">Analyzed</span>
-                      <span className="text-white/40">{new Date(prediction.analyzed_at).toLocaleString()}</span>
+                      <span className="font-mono text-white/55">{new Date(prediction.analyzed_at).toLocaleString()}</span>
                     </div>
                   )}
                   {alert.acknowledged_at && (
-                    <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
+                    <div className="flex items-center justify-between rounded-lg border border-white/[0.1] bg-white/[0.04] px-3.5 py-3">
                       <span className="text-white/60">Acknowledged</span>
-                      <span className="text-white/40">{new Date(alert.acknowledged_at).toLocaleString()}</span>
+                      <span className="font-mono text-white/55">{new Date(alert.acknowledged_at).toLocaleString()}</span>
                     </div>
                   )}
                   {alert.resolved_at && (
-                    <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
+                    <div className="flex items-center justify-between rounded-lg border border-white/[0.1] bg-white/[0.04] px-3.5 py-3">
                       <span className="text-white/60">Resolved</span>
-                      <span className="text-white/40">{new Date(alert.resolved_at).toLocaleString()}</span>
+                      <span className="font-mono text-white/55">{new Date(alert.resolved_at).toLocaleString()}</span>
                     </div>
                   )}
-                  <p className="pt-1 text-xs text-white/30">
+                  <p className="pt-1 text-xs text-white/45">
                     Full event timeline is available on the related Observation page.
                   </p>
                 </div>
@@ -211,12 +211,12 @@ export default function AlertDetails() {
               {tab === "evidence" && (
                 <div className="space-y-2.5">
                   {(!prediction?.evidence || prediction.evidence.length === 0) && (
-                    <p className="text-sm text-white/30">No evidence recorded for this alert.</p>
+                    <p className="text-sm text-white/45">No evidence recorded for this alert.</p>
                   )}
                   {prediction?.evidence?.map((e) => (
                     <div key={e.sequence} className="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3">
                       <div className="text-sm text-white/70">{e.evidence_type}</div>
-                      <div className="mt-0.5 font-mono text-[11px] text-white/35">
+                      <div className="mt-0.5 font-mono text-[11px] text-white/50">
                         {e.reference} {e.confidence != null && `· ${Math.round(e.confidence * 100)}%`}
                       </div>
                     </div>
@@ -229,47 +229,33 @@ export default function AlertDetails() {
 
         <Reveal delay={100}>
           <GlassCard className="p-6">
-            <div className="mb-4 text-sm font-medium text-white">Details</div>
+            <div className="mb-5 flex items-center gap-2 text-sm font-medium text-white">
+              <ShieldAlert className="h-4 w-4 text-indigo-400" /> Details
+            </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Status</span>
+                <span className="text-white/55">Status</span>
                 <Badge tone={alert.status?.toLowerCase()}>{alert.status?.toLowerCase()}</Badge>
               </div>
               {prediction && (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Verdict</span>
-                    <span className="text-white">{prediction.verdict}</span>
+                    <span className="text-white/55">Verdict</span>
+                    <span className="font-mono text-white">{prediction.verdict}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Confidence</span>
-                    <span className="text-white">{Math.round(prediction.confidence * 100)}%</span>
+                    <span className="text-white/55">Confidence</span>
+                    <span className="font-mono text-white">{Math.round(prediction.confidence * 100)}%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Risk Score</span>
-                    <span className="text-white">{prediction.risk_score}</span>
+                    <span className="text-white/55">Risk Score</span>
+                    <span className="font-mono text-white">{prediction.risk_score}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Model</span>
+                    <span className="text-white/55">Model</span>
                     <span className="text-white/60">{prediction.model_version}</span>
                   </div>
                 </>
-              )}
-              {(alert.acknowledged_by || alert.resolved_by) && (
-                <div className="border-t border-white/[0.06] pt-3 space-y-2">
-                  {alert.acknowledged_by && (
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-white/40">Acknowledged by</span>
-                      <span className="text-white/60">{alert.acknowledged_by}</span>
-                    </div>
-                  )}
-                  {alert.resolved_by && (
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-white/40">Resolved by</span>
-                      <span className="text-white/60">{alert.resolved_by}</span>
-                    </div>
-                  )}
-                </div>
               )}
             </div>
           </GlassCard>

@@ -14,15 +14,15 @@ export default function StatCard({ label, value, trend, up, sub, icon: Icon, col
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 ring-1 ${theme.ring} backdrop-blur-xl transition-transform duration-300 hover:-translate-y-0.5`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/[0.12] bg-white/[0.05] p-5 ring-1 ${theme.ring} backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.07]`}
     >
       <div className={`pointer-events-none absolute -right-6 -top-10 h-28 w-28 rounded-full ${theme.glow} blur-3xl opacity-40 transition-opacity duration-300 group-hover:opacity-70`} />
 
       <div className="relative flex items-start justify-between">
-        <div>
-          <div className="text-[11px] font-medium uppercase tracking-wide text-white/35">{label}</div>
-          <div className="mt-1.5 flex items-baseline gap-2">
-            <span className="text-[1.85rem] font-semibold leading-none tracking-tight text-white">{value}</span>
+        <div className="min-w-0">
+          <div className="font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/50">{label}</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="font-display text-[1.95rem] font-semibold leading-none tracking-tight text-white">{value}</span>
             {trend && (
               <span className={`flex items-center gap-0.5 text-[11px] font-medium ${up ? "text-emerald-400" : "text-rose-400"}`}>
                 {up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -30,10 +30,10 @@ export default function StatCard({ label, value, trend, up, sub, icon: Icon, col
               </span>
             )}
           </div>
-          {sub && <div className="mt-1 text-[11px] text-white/30">{sub}</div>}
+          {sub && <div className="mt-1.5 truncate text-[11.5px] text-white/45">{sub}</div>}
         </div>
         {Icon && (
-          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] ${theme.text}`}>
+          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] ${theme.text} transition-transform duration-300 group-hover:scale-105`}>
             <Icon className="h-4 w-4" />
           </span>
         )}
