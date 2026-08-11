@@ -112,7 +112,7 @@ export default function Observations() {
                         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10">
                           <Activity className="h-4 w-4 text-indigo-400" />
                         </span>
-                        {agentsById[o.agent_id] || o.agent_id}
+                        {agentsById[o.agent_id] || "Unknown agent"}
                       </Link>
                     </td>
                     <td className="px-5 py-4">

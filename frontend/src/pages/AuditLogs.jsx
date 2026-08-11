@@ -149,10 +149,7 @@ export default function AuditLogs() {
                 {entries.map((e) => (
                   <tr key={e.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.05]">
                     <td className="px-5 py-4 font-mono text-xs text-white/80">{e.action}</td>
-                    <td className="px-5 py-4 text-white/65">
-                      {e.resource_type}
-                      {e.resource_id && <span className="text-white/40"> · {e.resource_id}</span>}
-                    </td>
+                    <td className="px-5 py-4 text-white/65">{e.resource_type}</td>
                     <td className="px-5 py-4 font-mono text-xs text-white/50">{new Date(e.created_at).toLocaleString()}</td>
                   </tr>
                 ))}

@@ -88,7 +88,6 @@ export default function ObservationDetails() {
       <Topbar
         icon={Activity}
         title={`Observation${agentName ? ` · ${agentName}` : ""}`}
-        subtitle={obs.id}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
