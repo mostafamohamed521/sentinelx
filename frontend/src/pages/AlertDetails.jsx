@@ -99,7 +99,6 @@ export default function AlertDetails() {
       <Topbar
         icon={AlertTriangle}
         title={`Alert${agentName ? ` · ${agentName}` : ""}`}
-        subtitle={alert.id}
         actions={
           <>
             <button
