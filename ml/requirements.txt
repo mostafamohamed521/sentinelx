@@ -3,6 +3,6 @@ pandas==3.0.5
 scipy==1.18.0
 scikit-learn==1.8.0
 joblib==1.5.3
-fastapi==0.141.1
+fastapi[standard]==0.141.1
 uvicorn==0.52.3
 httpx==0.28.1
